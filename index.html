@@ -445,10 +445,10 @@
             </div>
 
             <!-- VUE 2 : ACTUALITÉS (Journal) -->
-            <div id="view-news" class="hidden-page view-container relative z-10">
+            <div id="view-news" class="hidden-page view-container relative z-20">
                 <!-- Image Hero -->
                 <div class="relative h-72 w-full overflow-hidden rounded-b-[40px] shadow-2xl z-10">
-                    <img src="" class="w-full h-full object-cover transition duration-[2s] transform scale-100 hover:scale-110" id="site-hero-img">
+                    <img src="" class="w-full h-full object-cover transition duration-[2s] transform scale-100 hover:scale-110" id="site-hero-img" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6 pb-12">
                         <div class="stagger-enter delay-100">
                              <div class="flex gap-2 mb-2">
@@ -654,7 +654,7 @@
                                 <h4 class="font-bold text-gray-900 text-lg leading-tight group-hover:text-green-600 transition">Intéressement</h4>
                                 <p class="text-xs text-gray-400 mt-1 font-semibold">Avenant n°3 • 1.8 MB</p>
                             </div>
-                            <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-green-50 group-hover:border-green-100 group-hover:text-green-600 transition">
+                            <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-green-600 transition">
                                 <i class="fas fa-download text-xs"></i>
                             </div>
                         </div>
@@ -735,7 +735,7 @@
                 <div class="reading-progress-bar" id="reading-progress"></div>
             </div>
             <div class="relative h-96">
-                <img id="article-img" src="" class="w-full h-full object-cover">
+                <img id="article-img" src="" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white"></div>
                 <button onclick="closeArticle()" class="absolute top-12 right-6 bg-white/20 backdrop-blur-xl text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border border-white/40 z-50 hover:bg-white hover:text-black transition duration-300 active:scale-90">
                     <i class="fas fa-times text-xl"></i>
@@ -790,73 +790,21 @@
             { id: 'carling', name: 'Carling', region: 'Est', icon: 'fa-flask', img: 'carling.jpg', users: '420', flash: "Sécurité : Rappel des consignes EPI" }
         ];
 
-        // BASE DE DONNÉES CONTENU DÉTAILLÉ
+        // BASE DE DONNÉES CONTENU
         const siteContent = {
             'lamede': [
-                { 
-                    title: "Grand Arrêt 2026 : La sécurité ne doit pas être une variable d'ajustement", 
-                    date: "12 Fév 2026", 
-                    tag: "Sécurité",
-                    author: "Fred", 
-                    image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p class="font-bold text-gray-800">Camarades de La Mède,</p>
-                        <p>Le Grand Arrêt de la Bio-Raffinerie approche à grands pas. La direction prévoit le début des opérations pour lundi prochain. Cependant, les conditions de sécurité ne sont pas réunies.</p>
-                        <h3>Une sous-traitance en cascade inacceptable</h3>
-                        <p>Nous constatons encore une fois le recours massif à une sous-traitance en cascade (jusqu'à 4 niveaux !). Cela dilue les responsabilités et met en danger les intervenants qui ne connaissent pas nos installations spécifiques. La CGT exige que chaque intervenant soit badgé avec mention explicite de son employeur réel et de sa qualification.</p>
-                        <h3>Des délais intenables</h3>
-                        <p>Le planning présenté en CSE est irréaliste. La direction veut faire en 3 semaines ce qui en nécessite 5. Cette pression temporelle va inévitablement conduire à des impasses sur les procédures de sécurité.</p>
-                        <h3>Nos revendications immédiates :</h3>
-                        <ul>
-                            <li><strong>Prime de Grand Arrêt :</strong> Revalorisation de 300€ pour tous les salariés impliqués.</li>
-                            <li><strong>Embauches :</strong> Recrutement immédiat en CDI de 15 opérateurs pour combler les départs.</li>
-                        </ul>
-                    ` 
-                },
-                { 
-                    title: "Planning 5x8 : Les équipes disent NON à la flexibilité imposée", 
-                    date: "09 Fév 2026", 
-                    tag: "Social",
-                    author: "Karim",
-                    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p>La direction tente de modifier les cycles de 5x8 sous prétexte de "lissage d'activité". En réalité, il s'agit de réduire les temps de repos entre les bascules jour/nuit.</p>
-                        <h3>Fatigue et Risques Professionnels</h3>
-                        <p>La pénibilité du travail posté n'est plus à prouver. Réduire la récupération, c'est augmenter directement le risque d'accident industriel et dégrader la vie de famille de nos camarades.</p>
-                    ` 
-                }
+                { title: "Grand Arrêt 2026 : La sécurité avant tout", date: "12 Fév 2026", tag: "Sécurité", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80", content: `<p>Camarades de La Mède, le Grand Arrêt de la Bio-Raffinerie approche. La CGT exige une vigilance accrue sur les conditions de sécurité et le recours à la sous-traitance en cascade.</p>` },
+                { title: "Planning 5x8 : Refusons la flexibilité", date: "09 Fév 2026", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80", content: `<p>La direction veut modifier nos cycles de repos. Nous portons la voix des équipes A et B : non à la dégradation de notre équilibre vie privée/vie professionnelle.</p>` }
             ],
             'feyzin': [
-                { 
-                    title: "Incident sur l'unité 12 : L'alerte était justifiée", 
-                    date: "10 Fév 2026", 
-                    tag: "Alerte", 
-                    author: "Louis Marc",
-                    image: "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p>L'incident survenu hier soir sur la torche Sud aurait pu avoir des conséquences dramatiques. Heureusement, le sang-froid des opérateurs console a permis d'éviter le pire.</p>
-                        <h3>La direction joue avec le feu</h3>
-                        <p>Pour économiser sur la maintenance curative, on préfère "pousser" les équipements jusqu'à la limite. C'est une stratégie criminelle en milieu SEVESO. Nous avons déposé un DGI (Danger Grave et Imminent).</p>
-                    ` 
-                }
+                { title: "Incident Unité 12 : Alerte DGI déposée", date: "10 Fév 2026", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?auto=format&fit=crop&w=800&q=80", content: `<p>L'incident de la torche Sud démontre la vétusté des vannes. Nous avons déposé un DGI (Danger Grave et Imminent). La sécurité n'est pas négociable.</p>` }
+            ],
+            'carling': [
+                { title: "Avenir du site : Inquiétudes stratégiques", date: "11 Fév 2026", tag: "Stratégie", author: "Karim", image: "carling_avenir.jpg", content: `<p>Face aux rumeurs de restructuration, la CGT demande des garanties écrites sur le maintien de l'emploi industriel à Carling pour les 10 prochaines années.</p>` },
+                { title: "Conditions de travail : Chaleur et EPI", date: "08 Fév 2026", tag: "Santé", author: "Fred", image: "carling_sante.jpg", content: `<p>Avec les pics de chaleur, nos tenues ne sont plus adaptées. Nous demandons une dotation immédiate de vêtements respirants pour les opérateurs terrain.</p>` }
             ],
             'default': [
-                { 
-                    title: "NAO 2026 : Mobilisation générale pour les salaires", 
-                    date: "10 Fév 2026", 
-                    tag: "National", 
-                    author: "Olivier",
-                    image: "nao.jpg", 
-                    content: `
-                        <p class="font-bold text-gray-900 mb-4">Camarades,</p>
-                        <p>La direction propose 2,5% d'augmentation alors que l'inflation est à 5% et les bénéfices à 20 milliards d'euros. C'est un mépris total envers ceux qui produisent la richesse.</p>
-                        <h3>Nos revendications :</h3>
-                        <ul>
-                            <li>6% d'augmentation générale pour tous.</li>
-                            <li>Talon minimum de 200€ net.</li>
-                        </ul>
-                    ` 
-                }
+                { title: "NAO 2026 : Appel à la mobilisation", date: "10 Fév 2026", tag: "National", author: "Olivier", image: "nao.jpg", content: `<p>6% d'augmentation générale sinon rien ! La direction propose des miettes face à une inflation record. Grève nationale mercredi prochain.</p>` }
             ]
         };
 
@@ -990,7 +938,7 @@
                 const tagColor = news.tag === 'Urgent' || news.tag === 'Alerte' ? 'bg-red-50 text-cgtRed' : 'bg-blue-50 text-totalBlue';
                 item.innerHTML = `
                     <div class="w-28 h-28 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-inner relative">
-                        <img src="${news.image}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" onerror="this.src='https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=400&q=80'">
+                        <img src="${news.image}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80'">
                     </div>
                     <div class="flex-1 flex flex-col justify-between py-1">
                         <div>
