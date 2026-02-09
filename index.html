@@ -27,7 +27,6 @@
                         'blob': 'blob 7s infinite',
                         'tilt': 'tilt 10s infinite linear',
                         'scroll': 'scroll 25s linear infinite',
-                        'spin-slow': 'spin 3s linear infinite',
                     },
                     keyframes: {
                         float: {
@@ -170,6 +169,8 @@
             inset: 0;
             backface-visibility: hidden;
             transform-style: preserve-3d;
+            /* Empêche le scroll de quitter l'app sur mobile */
+            overscroll-behavior-y: contain; 
         }
         
         .slide-in-right {
@@ -293,7 +294,7 @@
     </div>
 
     <!-- SPLASH SCREEN -->
-    <div id="splash-screen" class="absolute inset-0 z-[300] bg-gradient-to-br from-[#E30613] to-[#8a040b] flex flex-col items-center justify-center text-white">
+    <div id="splash-screen" class="absolute inset-0 z-[500] bg-gradient-to-br from-[#E30613] to-[#8a040b] flex flex-col items-center justify-center text-white">
         <div class="w-40 h-40 mb-8 animate-float relative perspective-500">
              <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl" style="transform: rotateX(10deg) rotateY(-10deg);">
                 <defs>
@@ -444,7 +445,7 @@
             </div>
 
             <!-- VUE 2 : ACTUALITÉS (Journal) -->
-            <div id="view-news" class="hidden-page view-container relative z-20">
+            <div id="view-news" class="hidden-page view-container relative z-10">
                 <!-- Image Hero -->
                 <div class="relative h-72 w-full overflow-hidden rounded-b-[40px] shadow-2xl z-10">
                     <img src="" class="w-full h-full object-cover transition duration-[2s] transform scale-100 hover:scale-110" id="site-hero-img">
@@ -624,43 +625,6 @@
                 </div>
             </div>
 
-            <!-- VUE 3 : ACCORDS -->
-            <div id="view-accords" class="hidden-page absolute inset-0 bg-white z-[250] overflow-y-auto">
-                <div class="p-6 pt-20 min-h-screen bg-bgLight">
-                    <button onclick="closeAccords()" class="absolute top-6 left-6 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-800 z-10 active:scale-90 transition hover:bg-gray-50"><i class="fas fa-times"></i></button>
-                    
-                    <h2 class="text-4xl font-black text-gray-900 mb-3 mt-4 tracking-tighter">Accords<br><span class="text-totalBlue">Entreprise</span></h2>
-                    <p class="text-gray-500 text-sm mb-10 font-medium">Consultez et téléchargez les textes officiels en vigueur.</p>
-
-                    <div class="space-y-4">
-                        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-center gap-5 cursor-pointer group" onclick="downloadDoc('Accord_Teletravail_2026.pdf')">
-                            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-blue-600 group-hover:text-white transition duration-300 shadow-inner">
-                                <i class="fas fa-file-pdf"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-900 text-lg leading-tight group-hover:text-blue-600 transition">Accord Télétravail</h4>
-                                <p class="text-xs text-gray-400 mt-1 font-semibold">Signé le 12 Jan 2026 • 2.4 MB</p>
-                            </div>
-                            <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 transition">
-                                <i class="fas fa-download text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-center gap-5 cursor-pointer group" onclick="downloadDoc('Accord_Interessement.pdf')">
-                            <div class="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-green-600 group-hover:text-white transition duration-300 shadow-inner">
-                                <i class="fas fa-file-signature"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-900 text-lg leading-tight group-hover:text-green-600 transition">Intéressement</h4>
-                                <p class="text-xs text-gray-400 mt-1 font-semibold">Avenant n°3 • 1.8 MB</p>
-                            </div>
-                            <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-green-600 transition">
-                                <i class="fas fa-download text-xs"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- VUE 4 : AGENDA -->
             <div id="view-agenda" class="hidden-page p-6 fade-in pt-24">
                 <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Calendrier<br><span class="text-cgtRed">Social</span></h2>
@@ -698,10 +662,6 @@
                             <span class="tracking-wide group-hover:text-green-600 transition">WHATSAPP</span>
                         </a>
                     </div>
-
-                    <p class="text-[10px] text-gray-400 text-center px-4 mt-8 font-medium leading-relaxed">
-                        <i class="fas fa-info-circle mr-1"></i> En cas d'urgence absolue, utilisez les canaux officiels de votre site.
-                    </p>
                 </div>
             </div>
 
@@ -728,8 +688,45 @@
             </button>
         </nav>
 
+        <!-- VUE ACCORDS (ISOLÉE POUR CORRIGER LE BUG DE SCROLL) -->
+        <div id="view-accords" class="hidden-page absolute inset-0 bg-white z-[250] overflow-y-auto view-container">
+            <div class="p-6 pt-20 min-h-screen bg-bgLight">
+                <button onclick="closeAccords()" class="absolute top-6 left-6 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-800 z-10 active:scale-90 transition hover:bg-gray-50"><i class="fas fa-times"></i></button>
+                
+                <h2 class="text-4xl font-black text-gray-900 mb-3 mt-4 tracking-tighter">Accords<br><span class="text-totalBlue">Entreprise</span></h2>
+                <p class="text-gray-500 text-sm mb-10 font-medium">Consultez et téléchargez les textes officiels en vigueur.</p>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-[24px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-center gap-5 cursor-pointer group" onclick="downloadDoc('Accord_Teletravail_2026.pdf')">
+                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-blue-600 group-hover:text-white transition duration-300 shadow-inner">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900 text-lg leading-tight group-hover:text-blue-600 transition">Accord Télétravail</h4>
+                            <p class="text-xs text-gray-400 mt-1 font-semibold">Signé le 12 Jan 2026 • 2.4 MB</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 transition">
+                            <i class="fas fa-download text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-[24px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-center gap-5 cursor-pointer group" onclick="downloadDoc('Accord_Interessement.pdf')">
+                        <div class="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-green-600 group-hover:text-white transition duration-300 shadow-inner">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900 text-lg leading-tight group-hover:text-green-600 transition">Intéressement</h4>
+                            <p class="text-xs text-gray-400 mt-1 font-semibold">Avenant n°3 • 1.8 MB</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-green-50 group-hover:border-green-100 group-hover:text-green-600 transition">
+                            <i class="fas fa-download text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- VUE ARTICLE -->
-        <div id="view-article" class="hidden-page absolute inset-0 bg-white z-[200] overflow-y-auto">
+        <div id="view-article" class="hidden-page absolute inset-0 bg-white z-[300] overflow-y-auto view-container">
             <div class="reading-progress-container">
                 <div class="reading-progress-bar" id="reading-progress"></div>
             </div>
@@ -759,7 +756,6 @@
                     
                     <div id="article-body" class="article-content text-base text-gray-600 leading-relaxed font-medium"></div>
                     
-                    <!-- BOUTON SOUTENIR -->
                     <div class="mt-8 border-t border-gray-100 pt-6">
                         <button onclick="toggleSupport(this)" class="w-full flex items-center justify-center gap-2 bg-gray-50 text-gray-500 font-bold py-4 rounded-2xl hover:bg-red-50 hover:text-cgtRed transition duration-300 group">
                             <i class="far fa-hand-rock text-xl group-hover:scale-110 transition"></i>
@@ -771,7 +767,7 @@
         </div>
 
         <!-- Toast -->
-        <div id="toast" class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 backdrop-blur-md text-white text-xs font-bold py-3.5 px-8 rounded-full shadow-2xl opacity-0 transition-all z-[300] pointer-events-none translate-y-[-20px] flex items-center gap-3 w-max border border-white/10">
+        <div id="toast" class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 backdrop-blur-md text-white text-xs font-bold py-3.5 px-8 rounded-full shadow-2xl opacity-0 transition-all z-[600] pointer-events-none translate-y-[-20px] flex items-center gap-3 w-max border border-white/10">
             <i class="fas fa-check-circle text-green-400 text-lg"></i>
             <span id="toast-msg">Action effectuée</span>
         </div>
@@ -792,97 +788,14 @@
         // BASE DE DONNÉES CONTENU DÉTAILLÉ
         const siteContent = {
             'lamede': [
-                { 
-                    title: "Grand Arrêt 2026 : La sécurité ne doit pas être une variable d'ajustement", 
-                    date: "12 Fév 2026", 
-                    tag: "Sécurité",
-                    author: "Fred", 
-                    image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p class="font-bold text-gray-800">Camarades de La Mède,</p>
-                        <p>Le Grand Arrêt de la Bio-Raffinerie approche à grands pas. La direction prévoit le début des opérations pour lundi prochain. Cependant, les conditions de sécurité ne sont pas réunies.</p>
-                        <h3>Une sous-traitance en cascade inacceptable</h3>
-                        <p>Nous constatons encore une fois le recours massif à une sous-traitance en cascade (jusqu'à 4 niveaux !). Cela dilue les responsabilités et met en danger les intervenants qui ne connaissent pas nos installations spécifiques. La CGT exige que chaque intervenant soit badgé avec mention explicite de son employeur réel et de sa qualification.</p>
-                        <h3>Des délais intenables</h3>
-                        <p>Le planning présenté en CSE est irréaliste. La direction veut faire en 3 semaines ce qui en nécessite 5. Cette pression temporelle va inévitablement conduire à des impasses sur les procédures de sécurité.</p>
-                        <h3>Nos revendications immédiates :</h3>
-                        <ul>
-                            <li><strong>Prime de Grand Arrêt :</strong> Revalorisation de 300€ pour tous les salariés impliqués.</li>
-                            <li><strong>Embauches :</strong> Recrutement immédiat en CDI de 15 opérateurs pour combler les départs.</li>
-                            <li><strong>Droit de retrait :</strong> Rappel à tous sur l'utilisation du droit de retrait en cas de danger grave et imminent.</li>
-                        </ul>
-                    ` 
-                },
-                { 
-                    title: "Planning 5x8 : Les équipes disent NON à la flexibilité imposée", 
-                    date: "09 Fév 2026", 
-                    tag: "Social",
-                    author: "Karim",
-                    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p>La direction tente de modifier les cycles de 5x8 sous prétexte de "lissage d'activité". En réalité, il s'agit de réduire les temps de repos entre les bascules jour/nuit.</p>
-                        <h3>Fatigue et Risques Professionnels</h3>
-                        <p>La pénibilité du travail posté n'est plus à prouver. Réduire la récupération, c'est augmenter directement le risque d'accident industriel et dégrader la vie de famille de nos camarades.</p>
-                        <h3>Notre proposition</h3>
-                        <p>La CGT porte un projet de passage à la 6ème équipe pour réduire le temps de travail hebdomadaire à 32h pour les postés, sans perte de salaire. C'est la seule solution viable pour la santé des travailleurs.</p>
-                    ` 
-                },
-                {
-                    title: "Bio-Carburants : Quel avenir pour nos emplois ?",
-                    date: "05 Fév 2026",
-                    tag: "Stratégie",
-                    author: "Olivier",
-                    image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80",
-                    content: `
-                        <p>Le passage au 100% Bio-carburants est une étape clé, mais nous ne devons pas être les oubliés de la transition énergétique. On nous parle d'investissements, mais les effectifs de maintenance, eux, continuent de fondre.</p>
-                        <p>La CGT exige des garanties écrites sur le maintien de l'emploi industriel sur le site jusqu'en 2040.</p>
-                    `
-                }
+                { title: "Grand Arrêt 2026 : La sécurité avant tout", date: "12 Fév 2026", tag: "Sécurité", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80", content: `<p>Camarades, le Grand Arrêt approche. La CGT exige une vigilance accrue sur la sous-traitance.</p>` },
+                { title: "Planning 5x8 : Refusons la flexibilité", date: "09 Fév 2026", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80", content: `<p>La direction veut modifier nos cycles. Restons soudés pour préserver notre équilibre vie privée.</p>` }
             ],
             'feyzin': [
-                { 
-                    title: "Incident sur l'unité 12 : L'alerte était justifiée", 
-                    date: "10 Fév 2026", 
-                    tag: "Alerte", 
-                    author: "Louis Marc",
-                    image: "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p>L'incident survenu hier soir sur la torche Sud aurait pu être évité. Cela fait 6 mois que vos élus CGT alertent sur la vétusté des vannes de régulation de cette zone.</p>
-                        <h3>La direction joue avec le feu</h3>
-                        <p>Pour économiser sur la maintenance curative, on préfère "pousser" les équipements jusqu'à la limite. C'est une stratégie criminelle en milieu SEVESO. Nous avons déposé un DGI (Danger Grave et Imminent).</p>
-                    ` 
-                },
-                { 
-                    title: "Parking et Accès : Le ras-le-bol des salariés", 
-                    date: "08 Fév 2026", 
-                    tag: "Vie de site",
-                    author: "Fred", 
-                    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p>Entre les travaux de la Vallée de la Chimie et la fermeture du parking Nord, venir travailler à Feyzin devient un calvaire quotidien.</p>
-                        <p>La CGT demande la réouverture immédiate des accès secondaires pour les heures de relève et la prise en charge par l'employeur des frais de covoiturage via une prime spécifique.</p>
-                    ` 
-                }
+                { title: "Incident Unité 12 : Alerte DGI déposée", date: "10 Fév 2026", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?auto=format&fit=crop&w=800&q=80", content: `<p>L'incident de la torche Sud démontre la vétusté des vannes. Nous avons déposé un DGI.</p>` }
             ],
             'default': [
-                { 
-                    title: "NAO 2026 : Mobilisation générale pour les salaires", 
-                    date: "10 Fév 2026", 
-                    tag: "National", 
-                    author: "Olivier",
-                    image: "https://images.unsplash.com/photo-1461301214746-1e790926d323?auto=format&fit=crop&w=800&q=80", 
-                    content: `
-                        <p class="font-bold text-gray-900 mb-4">Camarades,</p>
-                        <p>La direction propose 2,5% d'augmentation alors que l'inflation est à 5% et les bénéfices à 20 milliards d'euros. C'est un mépris total envers ceux qui produisent la richesse.</p>
-                        <h3>Nos revendications :</h3>
-                        <ul>
-                            <li>6% d'augmentation générale pour tous.</li>
-                            <li>Talon minimum de 200€ net.</li>
-                            <li>Indexation des salaires sur l'inflation réelle.</li>
-                        </ul>
-                        <p>La grève est notre seule arme. Soyons nombreux mercredi prochain devant les portails.</p>
-                    ` 
-                }
+                { title: "NAO 2026 : Appel à la mobilisation", date: "10 Fév 2026", tag: "National", author: "Olivier", image: "https://images.unsplash.com/photo-1461301214746-1e790926d323?auto=format&fit=crop&w=800&q=80", content: `<p>6% d'augmentation générale sinon rien ! Grève mercredi prochain.</p>` }
             ]
         };
 
@@ -890,9 +803,6 @@
             { month: "Février 2026", events: [
                 { day: "12", title: "Réunion NAO #4", time: "10:00 - Siège", type: "Négo" },
                 { day: "15", title: "AG du Personnel", time: "14:00 - Devant Cantine", type: "Grève", color: "text-cgtRed" },
-            ]},
-            { month: "Mars 2026", events: [
-                { day: "05", title: "Comité Social Économique", time: "08:30 - Salle Plénière", type: "CSE" },
             ]}
         ];
 
