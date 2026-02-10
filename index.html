@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CGT TotalEnergies</title>
     
-    <!-- Préchargement priorité haute -->
+    <!-- Priorité maximale pour le logo -->
     <link rel="preload" as="image" href="logo.jpg" fetchpriority="high">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,11 +27,10 @@
         }
     </script>
     <style>
-        /* FIX TOTAL POUR MOBILE */
+        /* Optimisations pour un affichage instantané et fluide sur mobile */
         * { 
             -webkit-tap-highlight-color: transparent; 
             box-sizing: border-box;
-            -webkit-overflow-scrolling: touch;
         }
         
         html, body {
@@ -40,7 +39,7 @@
             width: 100%;
             margin: 0;
             padding: 0;
-            background-color: #000;
+            background-color: #E30613;
             position: fixed;
         }
         
@@ -60,7 +59,6 @@
                 height: 90vh;
                 border-radius: 30px;
                 margin: 5vh auto;
-                position: relative;
             }
         }
 
@@ -79,16 +77,11 @@
             overflow-x: hidden;
             background: #F3F4F6;
             padding-bottom: 110px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .view-container { 
-            display: none; 
-            width: 100%;
-        }
-        
-        .view-container.active { 
-            display: block; 
-        }
+        .view-container { display: none; width: 100%; }
+        .view-container.active { display: block; }
 
         nav {
             flex: 0 0 auto;
@@ -111,11 +104,26 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.2s ease-out;
         }
 
-        .reading-bar { position: absolute; top: 0; left: 0; height: 3px; background: #E30613; width: 0%; z-index: 100; }
-        
+        .image-placeholder {
+            background-color: #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+
+        img {
+            transition: opacity 0.2s ease-in;
+            opacity: 0;
+        }
+        img.loaded {
+            opacity: 1;
+        }
+
+        .article-content p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
+        .article-content h3 { font-weight: 700; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111; }
+
         .confetti {
             position: absolute;
             width: 5px; height: 5px;
@@ -123,33 +131,30 @@
             animation: fall 2s linear forwards;
         }
         @keyframes fall { to { transform: translateY(100dvh) rotate(360deg); opacity: 0; } }
-        
-        .article-content p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
-        .article-content h3 { font-weight: 700; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111; }
     </style>
 </head>
 <body>
 
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="w-32 h-32 mb-6">
-            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain rounded-full shadow-2xl border-2 border-white/20" decoding="async">
+            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain rounded-full border-2 border-white/20 shadow-2xl" onload="this.classList.add('loaded')">
         </div>
-        <div class="w-16 h-1 bg-white/20 rounded-full overflow-hidden">
+        <div class="w-12 h-1 bg-white/20 rounded-full overflow-hidden">
             <div class="h-full bg-white w-full animate-pulse"></div>
         </div>
     </div>
 
     <div class="app-frame font-sans">
-        
         <header>
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3" onclick="goHome()">
-                    <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white">
-                        <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" decoding="async">
+                    <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-100 bg-gray-50">
+                        <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" onload="this.classList.add('loaded')">
                     </div>
                     <div>
                         <h1 class="font-black text-sm leading-none text-gray-900">TotalEnergies</h1>
-                        <p class="text-[9px] text-green-600 font-bold uppercase mt-1 tracking-tighter">● Connecté</p>
+                        <p class="text-[9px] text-green-600 font-bold uppercase mt-1">● Connecté</p>
                     </div>
                 </div>
                 <button onclick="switchTab('contact')" class="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100">
@@ -159,24 +164,24 @@
         </header>
 
         <main id="main-scroll">
-            
             <!-- VUE 1 : ACCUEIL -->
             <div id="view-sites" class="view-container active p-4">
                 <div class="flex justify-between items-end mb-5">
                     <h2 class="text-2xl font-black text-gray-800">Nos Sites</h2>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase" id="sites-count">8 Sites</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase" id="sites-count">0 Sites</span>
                 </div>
                 
-                <div class="grid grid-cols-3 gap-2 mb-6">
-                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-white">
+                <!-- Widgets -->
+                <div class="grid grid-cols-3 gap-2 mb-6 text-center">
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-white">
                         <i class="fas fa-cloud-sun text-yellow-500 mb-1"></i>
                         <div class="text-[10px] font-black">14°C</div>
                     </div>
-                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-white">
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-white">
                         <i class="fas fa-car text-blue-500 mb-1"></i>
                         <div class="text-[10px] font-black">Fluide</div>
                     </div>
-                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-white">
+                    <div class="bg-white p-3 rounded-2xl shadow-sm border border-white">
                         <i class="fas fa-leaf text-green-500 mb-1"></i>
                         <div class="text-[10px] font-black">Bon</div>
                     </div>
@@ -187,13 +192,13 @@
 
             <!-- VUE 2 : NEWS SITE -->
             <div id="view-news" class="view-container">
-                <div class="relative h-56 w-full overflow-hidden">
-                    <img src="" id="site-hero-img" class="w-full h-full object-cover" decoding="async">
+                <div class="relative h-56 w-full overflow-hidden image-placeholder">
+                    <img src="" id="site-hero-img" class="w-full h-full object-cover" onload="this.classList.add('loaded')">
                     <div class="absolute inset-0 bg-black/40"></div>
                     <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-black/30 text-white rounded-full flex items-center justify-center">
                         <i class="fas fa-arrow-left text-xs"></i>
                     </button>
-                    <div class="absolute bottom-4 left-4 right-4">
+                    <div class="absolute bottom-4 left-4">
                         <h2 class="text-white text-2xl font-black leading-none" id="news-site-title">Site</h2>
                         <p class="text-white/60 text-[10px] font-bold uppercase mt-1">Section Syndicale</p>
                     </div>
@@ -211,35 +216,34 @@
             <div id="view-contact" class="view-container p-4">
                 <div class="bg-gray-900 p-8 rounded-[30px] text-white text-center mb-6">
                     <h2 class="text-xl font-black mb-2">Besoin d'aide ?</h2>
-                    <p class="text-xs text-gray-400 font-medium">Vos délégués vous répondent directement.</p>
+                    <p class="text-xs text-gray-400">Vos délégués vous répondent.</p>
                 </div>
-                <div class="space-y-3">
-                    <select id="contact-site-select" class="w-full bg-white p-4 rounded-xl border border-gray-200 font-bold outline-none text-sm h-14"></select>
+                <div class="space-y-3 text-sm">
+                    <select id="contact-site-select" class="w-full bg-white p-4 rounded-xl border border-gray-200 font-bold h-14"></select>
                     <a href="mailto:Jad.zorgui07@gmail.com" class="block w-full bg-cgtRed text-white text-center py-4 rounded-xl font-bold shadow-lg shadow-red-500/20">EMAIL CGT</a>
-                    <a href="https://wa.me/33788408004" target="_blank" class="block w-full bg-white border border-gray-100 text-center py-4 rounded-xl font-bold text-[#25D366]">WHATSAPP</a>
+                    <a href="https://wa.me/33788408004" target="_blank" class="block w-full bg-white border border-gray-200 text-center py-4 rounded-xl font-bold text-[#25D366]">WHATSAPP</a>
                 </div>
             </div>
         </main>
 
         <nav>
-            <button onclick="switchTab('home')" id="btn-home" class="w-12 h-12 rounded-full flex items-center justify-center bg-cgtRed text-white shadow-lg transition-transform active:scale-90"><i class="fas fa-home"></i></button>
-            <button onclick="switchTab('agenda')" id="btn-agenda" class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400 transition-transform active:scale-90"><i class="fas fa-calendar-alt"></i></button>
-            <button onclick="switchTab('contact')" id="btn-contact" class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400 transition-transform active:scale-90"><i class="fas fa-comment-dots"></i></button>
+            <button onclick="switchTab('home')" id="btn-home" class="w-12 h-12 rounded-full flex items-center justify-center bg-cgtRed text-white shadow-lg"><i class="fas fa-home"></i></button>
+            <button onclick="switchTab('agenda')" id="btn-agenda" class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400"><i class="fas fa-calendar-alt"></i></button>
+            <button onclick="switchTab('contact')" id="btn-contact" class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400"><i class="fas fa-comment-dots"></i></button>
         </nav>
 
-        <!-- OVERLAY ARTICLE -->
+        <!-- Overlay Article -->
         <div id="view-article" class="hidden absolute inset-0 bg-white z-[200] overflow-y-auto">
-            <div class="reading-bar" id="reading-progress"></div>
-            <div class="relative h-64">
-                <img id="article-img" src="" class="w-full h-full object-cover" decoding="async">
+            <div class="relative h-64 image-placeholder">
+                <img id="article-img" src="" class="w-full h-full object-cover" onload="this.classList.add('loaded')">
                 <button onclick="closeArticle()" class="absolute top-6 right-6 w-10 h-10 bg-black/30 text-white rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-5">
-                <span id="article-tag" class="text-[10px] font-black text-cgtRed uppercase bg-red-50 px-2 py-1 rounded">INFOS</span>
+                <span id="article-tag" class="text-[9px] font-black text-cgtRed uppercase bg-red-50 px-2 py-1 rounded">INFOS</span>
                 <h1 id="article-title" class="text-2xl font-black mt-3 leading-tight text-gray-900">Titre</h1>
                 <p id="article-author" class="text-xs text-gray-400 mt-2 font-bold italic">Auteur</p>
                 <div id="article-body" class="mt-6 text-gray-700 leading-relaxed text-sm article-content"></div>
-                <div class="mt-10 mb-20">
+                <div class="mt-10 mb-20 text-center">
                     <button onclick="toggleSupport(this)" class="w-full py-4 bg-gray-50 border border-gray-100 rounded-xl font-bold text-gray-500 active:bg-red-50 active:text-cgtRed transition-colors">
                         <i class="far fa-hand-rock mr-2"></i> <span class="btn-text">SOUTENIR (42)</span>
                     </button>
@@ -272,33 +276,33 @@
 
         const siteContent = {
             'carling': [
-                { title: "Avenir du site : Emplois locaux", tag: "Stratégie", author: "Karim", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600", content: "<p>La CGT demande des garanties écrites sur le maintien des postes de maintenance pour les 10 prochaines années.</p><h3>Vapocraquage</h3><p>Les rumeurs de restructuration inquiètent les équipes. Nous exigeons une réunion extraordinaire.</p>" },
-                { title: "Dotation EPI d'été : Enfin du nouveau ?", tag: "Santé", author: "Fred", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600", content: "<p>Après des mois de bataille en CSSCT, les nouvelles tenues respirantes arrivent enfin en test.</p>" }
+                { title: "Avenir du site : Emplois locaux", tag: "Stratégie", author: "Karim", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=60&w=600", content: "<p>Défense des postes de maintenance sur les unités de vapocraquage.</p><h3>Vapocraquage</h3><p>Les rumeurs de restructuration inquiètent. Nous exigeons une vision claire à 10 ans.</p>" },
+                { title: "Dotation EPI d'été", tag: "Santé", author: "Fred", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=60&w=600", content: "<p>Demande de tenues adaptées aux fortes chaleurs pour les opérateurs terrain.</p>" }
             ],
             'donges': [
-                { title: "NAO locales : Rapport de force nécessaire", tag: "Social", author: "Fred", image: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600", content: "<p>Les propositions de primes de site sont déconnectées de la réalité. Rassemblement demain à 14h devant le portail.</p>" }
+                { title: "NAO locales : Rapport de force", tag: "Social", author: "Fred", image: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=60&w=600", content: "<p>Les propositions de primes de site sont insuffisantes. Mobilisons-nous devant le portail à 14h.</p>" }
             ],
             'feyzin': [
-                { title: "Incident Unité 12 : Alerte DGI déposée", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1516387933901-8266e7d6c817?w=600", content: "<p>L'incident survenu sur la torche Sud hier démontre la vétusté des vannes. Nous avons déposé un Danger Grave et Imminent.</p>" }
+                { title: "Incident Unité 12 : Alerte DGI", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1516387933901-8266e7d6c817?q=60&w=600", content: "<p>Dépôt d'un Danger Grave et Imminent suite à l'incident survenu hier sur la torche Sud.</p>" }
             ],
             'flandres': [
-                { title: "Plateforme logistique : Point effectifs", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=600", content: "<p>La montée en charge ne doit pas se faire au détriment de la sécurité. Nous exigeons 5 embauches immédiates.</p>" }
+                { title: "Plateforme logistique : Effectifs", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=60&w=600", content: "<p>La charge de travail augmente, les bras manquent. Embauches immédiates exigées.</p>" }
             ],
             'grandpuits': [
-                { title: "Transition énergétique : Le compte n'y est pas", tag: "Avenir", author: "Louis Marc", image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600", content: "<p>Le projet solaire avance, mais les solutions de reclassement pour nos camarades techniciens restent floues.</p>" }
+                { title: "Transition : Le compte n'y est pas", tag: "Avenir", author: "Louis Marc", image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=60&w=600", content: "<p>Projet solaire : nous exigeons des garanties concrètes pour le reclassement des techniciens.</p>" }
             ],
             'lamede': [
-                { title: "Grand Arrêt : Sécurité prioritaire", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600", content: "<p>Vigilance sur la sous-traitance durant les travaux. Chaque intervenant doit être formé et badgé correctement.</p>" },
-                { title: "Planning 5x8 : Refusons la flexibilité", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600", content: "<p>La direction veut modifier les cycles de repos. Pour notre santé et nos familles, c'est NON.</p>" }
+                { title: "Grand Arrêt : Sécurité", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=60&w=600", content: "<p>Contrôle strict des sous-traitants durant les travaux. Pas d'impasse sur la sécurité.</p>" },
+                { title: "Planning 5x8 : Refus flexibilité", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=60&w=600", content: "<p>La direction veut modifier les cycles de repos. Nous disons NON pour préserver notre santé.</p>" }
             ],
             'normandie': [
-                { title: "Blocage des expéditions : La force du nombre", tag: "Grève", author: "Olivier", image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?w=600", content: "<p>Depuis ce matin, aucun camion ne sort. La direction commence enfin à nous écouter. Restons groupés.</p>" }
+                { title: "Blocage expéditions : La force", tag: "Grève", author: "Olivier", image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?q=60&w=600", content: "<p>Aucun produit ne sort ce matin. La direction doit enfin ouvrir de vraies négociations.</p>" }
             ],
             'oudalle': [
-                { title: "Sécurité Chimie : Investissements attendus", tag: "Sécurité", author: "Louis Marc", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600", content: "<p>Focus sur la rénovation des équipements de protection collective. La sécurité n'est pas une variable d'ajustement.</p>" }
+                { title: "Sécurité Chimie : Investissements", tag: "Sécurité", author: "Louis Marc", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=60&w=600", content: "<p>Focus sur la rénovation des pompes haute pression. La sécurité n'est pas négociable.</p>" }
             ],
             'default': [
-                { title: "Mobilisation Nationale NAO 2026", tag: "National", author: "Olivier", image: "nao.jpg", content: "<p>La CGT TotalEnergies appelle à une grève nationale mercredi prochain. Mobilisons-nous pour nos salaires.</p>" }
+                { title: "Mobilisation Nationale NAO 2026", tag: "National", author: "Olivier", image: "nao.jpg", content: "<p>La CGT appelle à une grève nationale mercredi prochain. Mobilisons-nous pour nos salaires.</p>" }
             ]
         };
 
@@ -310,8 +314,8 @@
             sites.forEach(s => {
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-50 active:bg-gray-100 transition-colors" onclick="selectSite('${s.id}')">
-                        <div class="h-24 bg-gray-100 overflow-hidden">
-                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" decoding="async" loading="lazy" onerror="this.src='https://via.placeholder.com/200?text=Site'">
+                        <div class="h-24 image-placeholder">
+                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" decoding="async" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='https://via.placeholder.com/200?text=Site'">
                         </div>
                         <div class="p-3">
                             <h3 class="font-black text-xs leading-none text-gray-900">${s.name}</h3>
@@ -344,7 +348,7 @@
                     splash.style.opacity = '0';
                     setTimeout(() => splash.style.display = 'none', 400);
                 }
-            }, 800);
+            }, 400);
 
             document.getElementById('view-article').addEventListener('scroll', function() {
                 const progress = (this.scrollTop / (this.scrollHeight - this.clientHeight)) * 100;
@@ -355,7 +359,8 @@
         function selectSite(id) {
             const site = sites.find(s => s.id === id);
             document.getElementById('news-site-title').textContent = site.name;
-            document.getElementById('site-hero-img').src = site.img;
+            const hero = document.getElementById('site-hero-img');
+            hero.classList.remove('loaded'); hero.src = site.img;
             
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
             document.getElementById('view-news').classList.add('active');
@@ -370,11 +375,11 @@
             data.forEach(n => {
                 feed.innerHTML += `
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4 active:bg-gray-50 mb-3" onclick="openArticle('${id}', '${n.title.replace(/'/g, "\\'")}')">
-                        <div class="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                            <img src="${n.image}" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://via.placeholder.com/100?text=Info'">
+                        <div class="w-16 h-16 rounded-xl image-placeholder shrink-0">
+                            <img src="${n.image}" class="w-full h-full object-cover" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='https://via.placeholder.com/100?text=Info'">
                         </div>
                         <div class="flex-1">
-                            <span class="text-[7px] font-black text-cgtRed uppercase tracking-wider">${n.tag}</span>
+                            <span class="text-[7px] font-black text-cgtRed uppercase tracking-wider">${n.tag || 'INFO'}</span>
                             <h4 class="font-bold text-xs leading-snug mt-1 text-gray-900">${n.title}</h4>
                             <p class="text-[9px] text-gray-400 mt-1">Par ${n.author}</p>
                         </div>
@@ -386,8 +391,9 @@
             const data = siteContent[siteId] || siteContent['default'];
             const art = data.find(n => n.title === title);
             document.getElementById('article-title').textContent = art.title;
-            document.getElementById('article-img').src = art.image;
-            document.getElementById('article-tag').textContent = art.tag;
+            const artImg = document.getElementById('article-img');
+            artImg.classList.remove('loaded'); artImg.src = art.image;
+            document.getElementById('article-tag').textContent = art.tag || 'INFO';
             document.getElementById('article-author').textContent = "Rédigé par " + art.author;
             document.getElementById('article-body').innerHTML = art.content;
             document.getElementById('view-article').classList.remove('hidden');
