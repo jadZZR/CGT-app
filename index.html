@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CGT TotalEnergies - App Officielle</title>
     
-    <!-- PRÉCHARGEMENT DES IMAGES CRITIQUES -->
-    <link rel="preload" as="image" href="logo.jpg" fetchpriority="high">
+    <!-- PRÉCHARGEMENT PRIORITAIRE -->
+    <link rel="preload" as="image" href="logo.jpg">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -28,6 +28,7 @@
         }
     </script>
     <style>
+        /* Optimisations critiques pour la fluidité mobile */
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         
         body {
@@ -38,6 +39,7 @@
             justify-content: center;
             min-height: 100vh;
             overflow: hidden;
+            touch-action: manipulation;
         }
         
         .app-frame {
@@ -60,6 +62,19 @@
             }
         }
 
+        /* Scroll ultra-réactif */
+        .scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 110px;
+            transform: translateZ(0);
+            will-change: scroll-position;
+        }
+
+        .view-container { display: none; width: 100%; }
+        .view-container.active { display: block; }
+
         header {
             background: white;
             padding: 1rem;
@@ -68,18 +83,8 @@
             z-index: 50;
         }
 
-        .scroll-container {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 100px;
-        }
-
-        .view-container { display: none; width: 100%; }
-        .view-container.active { display: block; }
-
         .tab-nav {
-            background: white;
+            background: rgba(255, 255, 255, 0.98);
             border-top: 1px solid #eee;
         }
 
@@ -94,6 +99,17 @@
             justify-content: center;
             transition: opacity 0.4s ease;
         }
+        
+        #splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .reading-progress-container { position: absolute; top: 0; left: 0; width: 100%; height: 3px; z-index: 100; }
+        .reading-progress-bar { height: 100%; background: #E30613; width: 0%; transition: width 0.1s; }
+        
+        .article-content p { margin-bottom: 1rem; line-height: 1.6; }
+        .article-content h3 { font-weight: 700; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111; }
 
         .confetti {
             position: absolute;
@@ -104,102 +120,75 @@
             animation: fall 2s linear forwards;
         }
         @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-
-        .reading-progress-container { position: absolute; top: 0; left: 0; width: 100%; height: 3px; z-index: 100; }
-        .reading-progress-bar { height: 100%; background: #E30613; width: 0%; }
-        
-        .message-box {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
 
-    <!-- SPLASH SCREEN -->
+    <!-- ÉCRAN DE CHARGEMENT -->
     <div id="splash-screen">
         <div class="w-32 h-32 mb-6">
-            <!-- fetchpriority="high" pour charger le logo avant tout -->
-            <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full shadow-2xl border-2 border-white/20" fetchpriority="high">
+            <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full border-2 border-white/20 shadow-2xl" decoding="async" onerror="this.src='https://via.placeholder.com/200?text=CGT'">
         </div>
         <div class="w-12 h-1 bg-white/20 rounded-full overflow-hidden">
             <div class="h-full bg-white w-full animate-pulse"></div>
         </div>
     </div>
 
-    <div id="msg-box" class="message-box"></div>
-
     <div class="app-frame font-sans">
-        <!-- Header -->
+        <!-- Header Fixe -->
         <header>
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3" onclick="goHome()">
                     <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white">
-                        <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" fetchpriority="high">
+                        <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" decoding="async" onerror="this.src='https://via.placeholder.com/100?text=CGT'">
                     </div>
                     <div>
                         <h1 class="font-black text-sm leading-none">TotalEnergies</h1>
                         <p class="text-[9px] text-green-600 font-bold uppercase mt-1 tracking-wider">● Connecté</p>
                     </div>
                 </div>
-                <button onclick="showMessage('Aucune notification')" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center relative border border-gray-100">
+                <button onclick="switchTab('contact')" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center relative border border-gray-100 active:scale-90 transition">
                     <i class="fas fa-bell text-gray-400"></i>
                     <span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-cgtRed rounded-full"></span>
                 </button>
             </div>
-            <!-- Notif Dropdown -->
-            <div id="notif-dropdown" class="hidden absolute top-20 right-4 w-64 bg-white rounded-2xl shadow-2xl p-4 z-[100] border border-gray-100">
-                <p class="text-[10px] font-black mb-2 uppercase text-gray-400">Dernière alerte</p>
-                <p class="text-xs font-bold">Point NAO - Mise à jour disponible.</p>
-            </div>
         </header>
 
-        <!-- Zone de Scroll -->
+        <!-- Zone de Contenu -->
         <div class="scroll-container" id="main-scroll">
             
-            <!-- VUE 1 : ACCUEIL -->
+            <!-- VUE ACCUEIL -->
             <div id="view-sites" class="view-container active p-5">
                 <div class="flex justify-between items-end mb-6">
                     <h2 class="text-2xl font-black text-gray-800">Nos Sites</h2>
-                    <span class="text-[10px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100" id="sites-count">0 Sites</span>
+                    <span class="text-[9px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100" id="sites-count">10 Sites</span>
                 </div>
                 
+                <!-- Widgets -->
                 <div class="grid grid-cols-3 gap-3 mb-8">
                     <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
                         <i class="fas fa-cloud-sun text-yellow-500 mb-1"></i>
-                        <div class="text-xs font-black">14°C</div>
+                        <div class="text-[10px] font-black">14°C</div>
                     </div>
                     <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
                         <i class="fas fa-car text-blue-500 mb-1"></i>
-                        <div class="text-xs font-black">Fluide</div>
+                        <div class="text-[10px] font-black">Fluide</div>
                     </div>
                     <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
                         <i class="fas fa-leaf text-green-500 mb-1"></i>
-                        <div class="text-xs font-black">Bon</div>
+                        <div class="text-[10px] font-black">Bon</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4" id="sites-grid"></div>
             </div>
 
-            <!-- VUE 2 : NEWS SITE -->
+            <!-- VUE ACTUALITÉS -->
             <div id="view-news" class="view-container">
                 <div class="relative h-56 w-full">
-                    <img src="" id="site-hero-img" class="w-full h-full object-cover">
+                    <img src="" id="site-hero-img" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'">
                     <div class="absolute inset-0 bg-black/40"></div>
-                    <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-white/20 backdrop-blur-md text-white rounded-full"><i class="fas fa-arrow-left"></i></button>
+                    <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center"><i class="fas fa-arrow-left"></i></button>
                     <div class="absolute bottom-4 left-5">
                         <h2 class="text-white text-2xl font-black leading-none" id="news-site-title">Site</h2>
                         <p class="text-white/70 text-[10px] font-bold uppercase mt-1">Section Syndicale</p>
@@ -210,27 +199,27 @@
                 </div>
             </div>
 
-            <!-- VUE 3 : AGENDA -->
+            <!-- VUE AGENDA -->
             <div id="view-agenda" class="view-container p-5">
                 <h2 class="text-2xl font-black mb-6">Calendrier</h2>
                 <div id="agenda-list" class="space-y-4"></div>
             </div>
 
-            <!-- VUE 4 : CONTACT -->
+            <!-- VUE CONTACT -->
             <div id="view-contact" class="view-container p-5">
                 <div class="bg-gray-900 p-8 rounded-[30px] text-white text-center mb-8">
-                    <h2 class="text-xl font-black mb-2">Aide & Support</h2>
-                    <p class="text-xs text-gray-400">Vos délégués vous répondent.</p>
+                    <h2 class="text-xl font-black mb-2">Besoin d'aide ?</h2>
+                    <p class="text-xs text-gray-400">Vos élus sont à votre écoute.</p>
                 </div>
                 <div class="space-y-4">
-                    <select id="contact-site-select" class="w-full bg-white p-4 rounded-xl border border-gray-200 font-bold shadow-sm outline-none mb-2"></select>
+                    <select id="contact-site-select" class="w-full bg-white p-4 rounded-xl border border-gray-200 font-bold outline-none"></select>
                     <a href="mailto:Jad.zorgui07@gmail.com" class="block w-full bg-cgtRed text-white text-center py-4 rounded-xl font-bold shadow-lg shadow-red-500/20">EMAIL CGT</a>
                     <a href="https://wa.me/33788408004" target="_blank" class="block w-full bg-white border border-gray-200 text-center py-4 rounded-xl font-bold text-[#25D366]">WHATSAPP</a>
                 </div>
             </div>
         </div>
 
-        <!-- Navigation Fixe -->
+        <!-- Navigation Fixe en bas -->
         <nav class="absolute bottom-6 left-6 right-6 tab-nav rounded-full p-2 flex justify-around items-center shadow-2xl z-[100]">
             <button onclick="switchTab('home')" id="btn-home" class="w-12 h-12 rounded-full flex items-center justify-center transition-all bg-cgtRed text-white shadow-lg"><i class="fas fa-home"></i></button>
             <button onclick="switchTab('agenda')" id="btn-agenda" class="w-12 h-12 rounded-full flex items-center justify-center transition-all text-gray-400"><i class="fas fa-calendar-alt"></i></button>
@@ -241,17 +230,17 @@
         <div id="view-article" class="hidden absolute inset-0 bg-white z-[500] overflow-y-auto">
             <div class="reading-progress-container"><div class="reading-progress-bar" id="reading-progress"></div></div>
             <div class="relative h-64">
-                <img id="article-img" src="" class="w-full h-full object-cover">
+                <img id="article-img" src="" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800'">
                 <button onclick="closeArticle()" class="absolute top-6 right-6 w-10 h-10 bg-black/30 text-white rounded-full flex items-center justify-center backdrop-blur-md"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-6">
-                <span id="article-tag" class="text-[10px] font-black text-cgtRed uppercase bg-red-50 px-2 py-1 rounded">TAG</span>
+                <span id="article-tag" class="text-[9px] font-black text-cgtRed uppercase bg-red-50 px-2 py-1 rounded">ACTU</span>
                 <h1 id="article-title" class="text-2xl font-black mt-3 leading-tight text-gray-900">Titre</h1>
-                <p id="article-author" class="text-xs text-gray-400 mt-2 font-bold italic">Auteur</p>
-                <div id="article-body" class="mt-6 text-gray-700 leading-relaxed text-sm"></div>
-                <div class="mt-10 mb-20">
-                    <button onclick="toggleSupport(this)" class="w-full py-4 bg-gray-50 border border-gray-100 rounded-xl font-bold text-gray-500">
-                        <i class="far fa-hand-rock mr-2"></i> <span class="btn-support-text">SOUTENIR (42)</span>
+                <p id="article-author" class="text-xs text-gray-400 mt-2 font-bold italic">Par Auteur</p>
+                <div id="article-body" class="article-content mt-6 text-gray-700 leading-relaxed text-sm"></div>
+                <div class="mt-10 mb-20 text-center">
+                    <button onclick="toggleSupport(this)" class="w-full py-4 bg-gray-50 border border-gray-100 rounded-xl font-bold text-gray-500 active:bg-red-50 active:text-cgtRed transition-colors">
+                         <span class="btn-support-text">SOUTENIR (42)</span>
                     </button>
                 </div>
             </div>
@@ -259,51 +248,64 @@
     </div>
 
     <script>
-        const rawSites = [
-            { id: 'lamede', name: 'La Mède', region: 'Provence', img: 'lamede.jpg' },
-            { id: 'feyzin', name: 'Feyzin', region: 'Lyon', img: 'feyzin.jpg' },
-            { id: 'normandie', name: 'Normandie', region: 'Le Havre', img: 'normandie.jpg' },
-            { id: 'donges', name: 'Donges', region: 'St-Nazaire', img: 'donges.jpg' },
-            { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', img: 'grandpuits.jpg' },
+        // Données triées A-Z
+        const sites = [
             { id: 'carling', name: 'Carling', region: 'Est', img: 'carling.jpg' },
-            { id: 'flandres', name: 'Flandres', region: 'Dunkerque', img: 'flandres.jpg' },
+            { id: 'donges', name: 'Donges', region: 'St-Nazaire', img: 'donges.jpg' },
+            { id: 'feyzin', name: 'Feyzin', region: 'Lyon', img: 'feyzin.jpg' },
+            { id: 'flandres', name: 'Flandres', region: 'Nord', img: 'flandres.jpg' },
+            { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', img: 'grandpuits.jpg' },
+            { id: 'lamede', name: 'La Mède', region: 'Provence', img: 'lamede.jpg' },
+            { id: 'normandie', name: 'Normandie', region: 'Le Havre', img: 'normandie.jpg' },
             { id: 'oudalle', name: 'Oudalle', region: 'Seine-Maritime', img: 'oudalle.jpg' }
         ];
 
-        const sites = rawSites.sort((a, b) => a.name.localeCompare(b.name));
-
+        // Articles avec images thématiques Unsplash pour garantir le chargement
         const siteContent = {
+            'carling': [
+                { title: "Avenir du site : Inquiétudes stratégiques", tag: "Stratégie", author: "Karim", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", content: "<p>Face aux rumeurs de restructuration de la zone pétrochimique, la CGT demande une vision claire à 10 ans pour l'emploi local.</p><h3>Nos exigences</h3><p>Maintien des investissements sur les unités de vapocraquage et garanties sur les effectifs de maintenance.</p>" },
+                { title: "Dotation EPI d'été : Enfin du nouveau ?", tag: "Santé", author: "Fred", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800", content: "<p>Après plusieurs mois de pression en CSSCT, la direction accepte enfin de tester de nouvelles tenues respirantes pour les opérateurs de jour.</p>" }
+            ],
+            'donges': [
+                { title: "NAO locales : Rapport de force nécessaire", tag: "Social", author: "Fred", image: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=80&w=800", content: "<p>Les dernières propositions de la direction pour les primes de site sont insultantes. La CGT appelle à un rassemblement devant le portail à 14h.</p>" }
+            ],
+            'feyzin': [
+                { title: "Incident Unité 12 : Alerte DGI déposée", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1516387933901-8266e7d6c817?q=80&w=800", content: "<p>L'incident survenu sur la torche Sud hier démontre une fois de plus la vétusté des vannes. Nous avons déposé un Danger Grave et Imminent.</p>" }
+            ],
+            'flandres': [
+                { title: "Activités Plateforme : Point sur les effectifs", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?q=80&w=800", content: "<p>La montée en charge de la plateforme logistique ne doit pas se faire au détriment de la sécurité. Nous exigeons 5 embauches immédiates en CDI.</p>" }
+            ],
+            'grandpuits': [
+                { title: "Transition énergétique : Le compte n'y est pas", tag: "Avenir", author: "Louis Marc", image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800", content: "<p>Le projet solaire avance, mais les solutions de reclassement pour nos camarades techniciens restent floues. La CGT veille au grain.</p>" }
+            ],
             'lamede': [
-                { title: "Grand Arrêt 2026 : Sécurité", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600", content: "Vigilance accrue sur les installations." }
+                { title: "Grand Arrêt 2026 : Vigilance sous-traitance", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=800", content: "<p>L'afflux massif de sous-traitants pour le Grand Arrêt nécessite un contrôle strict des badges et des habilitations de sécurité.</p>" },
+                { title: "Planning 5x8 : Refusons la flexibilité", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800", content: "<p>La direction tente d'imposer des bascules jour/nuit plus rapprochées. C'est non ! Protégeons notre santé et nos familles.</p>" }
+            ],
+            'normandie': [
+                { title: "Blocage expéditions : La force du nombre", tag: "Grève", author: "Olivier", image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?q=80&w=800", content: "<p>Depuis ce matin 06h, aucun camion ne sort de la raffinerie. La direction commence enfin à nous écouter. Restons groupés !</p>" }
+            ],
+            'oudalle': [
+                { title: "Sécurité Chimie : Investissements attendus", tag: "Sécurité", author: "Louis Marc", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800", content: "<p>Oudalle doit rester un site d'excellence. Cela passe par le renouvellement immédiat des pompes haute pression de la zone A.</p>" }
             ],
             'default': [
-                { title: "Point National NAO", tag: "National", author: "Olivier", image: "nao.jpg", content: "Mobilisation pour le pouvoir d'achat." }
+                { title: "Mobilisation Nationale NAO 2026", tag: "National", author: "Olivier", image: "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=800", content: "<p>La CGT TotalEnergies appelle à une grève nationale mercredi prochain. Pour nos salaires, pour nos familles, soyons tous dans la rue.</p>" }
             ]
         };
-
-        function showMessage(text) {
-            const box = document.getElementById('msg-box');
-            box.textContent = text;
-            box.style.opacity = '1';
-            setTimeout(() => { box.style.opacity = '0'; }, 2000);
-        }
 
         function init() {
             const grid = document.getElementById('sites-grid');
             const select = document.getElementById('contact-site-select');
             
-            sites.forEach((s, index) => {
-                // Priority loading pour les 4 premières images de la grille
-                const priority = index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
-                
+            sites.forEach((s, idx) => {
                 grid.innerHTML += `
                     <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50 active:bg-gray-50 transition" onclick="selectSite('${s.id}')">
-                        <div class="h-24 bg-gray-200 relative">
-                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" ${priority} onerror="this.parentElement.style.backgroundColor='#eee';this.style.display='none'">
+                        <div class="h-24 bg-gray-100 overflow-hidden">
+                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" decoding="async" loading="${idx < 4 ? 'eager' : 'lazy'}" onerror="this.src='https://via.placeholder.com/200?text=Site'">
                         </div>
                         <div class="p-3">
                             <h3 class="font-black text-xs leading-none">${s.name}</h3>
-                            <p class="text-[8px] text-gray-400 font-bold uppercase mt-1">${s.region}</p>
+                            <p class="text-[8px] text-gray-400 font-bold uppercase mt-1 tracking-wider">${s.region}</p>
                         </div>
                     </div>`;
                 select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
@@ -316,17 +318,22 @@
                 <div class="bg-white p-4 rounded-xl border border-gray-50 shadow-sm flex items-center gap-4">
                     <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-cgtRed font-black text-sm">12</div>
                     <div><p class="text-sm font-bold">Réunion NAO #4</p><p class="text-[10px] text-gray-400">Siège Paris</p></div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-50 shadow-sm flex items-center gap-4">
+                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-cgtRed font-black text-sm">15</div>
+                    <div><p class="text-sm font-bold">AG Personnel</p><p class="text-[10px] text-gray-400">Local CGT</p></div>
                 </div>`;
 
-            // On retire le splash dès que le script a fini d'injecter le HTML de base
-            const splash = document.getElementById('splash-screen');
-            if (splash) {
-                setTimeout(() => {
-                    splash.style.opacity = '0';
-                    setTimeout(() => splash.style.display = 'none', 400);
-                }, 800);
-            }
+            // Sortie rapide du splash screen
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) {
+                    splash.classList.add('fade-out');
+                    setTimeout(() => splash.style.display = 'none', 500);
+                }
+            }, 600);
 
+            // Scroll bar listener
             document.getElementById('view-article').addEventListener('scroll', function() {
                 const progress = (this.scrollTop / (this.scrollHeight - this.clientHeight)) * 100;
                 document.getElementById('reading-progress').style.width = progress + '%';
@@ -337,6 +344,7 @@
             const site = sites.find(s => s.id === id);
             document.getElementById('news-site-title').textContent = site.name;
             document.getElementById('site-hero-img').src = site.img;
+            
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
             document.getElementById('view-news').classList.add('active');
             document.getElementById('main-scroll').scrollTop = 0;
@@ -349,8 +357,10 @@
             const data = siteContent[id] || siteContent['default'];
             data.forEach(n => {
                 feed.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm flex gap-4 active:bg-gray-50" onclick="openArticle('${id}', '${n.title.replace(/'/g, "\\'")}')">
-                        <img src="${n.image}" class="w-16 h-16 rounded-xl object-cover shrink-0" onerror="this.src='https://via.placeholder.com/100'">
+                    <div class="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm flex gap-4 active:bg-gray-100 transition" onclick="openArticle('${id}', '${n.title.replace(/'/g, "\\'")}')">
+                        <div class="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
+                            <img src="${n.image}" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://via.placeholder.com/100?text=Actu'">
+                        </div>
                         <div class="flex-1">
                             <span class="text-[7px] font-black text-cgtRed uppercase">${n.tag}</span>
                             <h4 class="font-bold text-xs leading-snug mt-1">${n.title}</h4>
@@ -404,9 +414,8 @@
 
         function goHome() { switchTab('home'); }
         function closeArticle() { document.getElementById('view-article').classList.add('hidden'); }
-        function toggleNotifications() { document.getElementById('notif-dropdown').classList.toggle('hidden'); }
 
-        // Lancement immédiat pour éviter le gel
+        // Initialisation immédiate
         init();
     </script>
 </body>
