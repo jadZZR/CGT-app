@@ -4,1137 +4,409 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CGT TotalEnergies - App Officielle</title>
+    
+    <!-- PRÉCHARGEMENT DES IMAGES CRITIQUES -->
+    <link rel="preload" as="image" href="logo.jpg" fetchpriority="high">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
                     colors: {
                         cgtRed: '#E30613',
                         cgtDark: '#B71C1C',
-                        cgtGold: '#FFD700',
                         totalBlue: '#005EB8',
                         bgLight: '#F0F2F5'
-                    },
-                    animation: {
-                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'blob': 'blob 7s infinite',
-                        'tilt': 'tilt 10s infinite linear',
-                        'scroll': 'scroll 25s linear infinite',
-                        'spin-slow': 'spin 3s linear infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        },
-                        blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
-                        },
-                        tilt: {
-                            '0%, 50%, 100%': { transform: 'rotate(0deg)' },
-                            '25%': { transform: 'rotate(1deg)' },
-                            '75%': { transform: 'rotate(-1deg)' },
-                        },
-                        scroll: {
-                            '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(-100%)' },
-                        }
                     }
                 }
             }
         }
     </script>
     <style>
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        
         body {
             background-color: #111;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             overflow: hidden;
-            perspective: 1000px;
         }
         
-        .ambient-light {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .app-frame {
+            position: relative;
             width: 100%;
             height: 100%;
+            background: #F0F2F5;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
-            z-index: -1;
-            background: linear-gradient(to bottom, #1a1a1a, #000);
-        }
-        .light-blob {
-            position: absolute;
-            background: #E30613;
-            filter: blur(80px);
-            opacity: 0.3;
-            border-radius: 50%;
-            animation: blob 10s infinite alternate;
         }
 
-        .app-frame {
-            transform-style: preserve-3d;
-            box-shadow: 
-                0 0 0 2px #333,
-                0 20px 50px rgba(0,0,0,0.5),
-                0 0 100px rgba(227, 6, 19, 0.1);
-            transition: transform 0.3s ease;
-            position: relative;
+        @media (min-width: 768px) {
+            .app-frame {
+                width: 375px;
+                height: 90vh;
+                max-height: 850px;
+                border-radius: 40px;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            }
         }
 
-        ::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
+        header {
+            background: white;
+            padding: 1rem;
+            padding-top: env(safe-area-inset-top, 2.5rem);
+            border-bottom: 1px solid #eee;
+            z-index: 50;
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+        .scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 100px;
         }
 
-        .card-3d {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform-style: preserve-3d;
-            perspective: 1000px;
-        }
-        .card-3d:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-        }
-        .card-3d:active {
-            transform: scale(0.95);
-        }
+        .view-container { display: none; width: 100%; }
+        .view-container.active { display: block; }
 
-        .stagger-enter {
-            opacity: 0;
-            transform: translateY(30px) scale(0.9);
-            animation: fadeInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
-        .delay-400 { animation-delay: 400ms; }
-
-        .hidden-page {
-            display: none !important;
-        }
-
-        .logo-shadow {
-            filter: drop-shadow(0 4px 10px rgba(227, 6, 19, 0.3));
-        }
-
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
-        
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 8px;
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .tab-nav {
+            background: white;
+            border-top: 1px solid #eee;
         }
 
         #splash-screen {
-            transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1), visibility 0.6s;
-        }
-        #splash-screen.hide {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        
-        .view-container {
-            position: absolute;
+            position: fixed;
             inset: 0;
-            backface-visibility: hidden;
-            transform-style: preserve-3d;
-            overscroll-behavior-y: contain; 
-        }
-        
-        .slide-in-right {
-            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .fade-scale-in {
-            animation: fadeScaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(100%) translateZ(0); }
-            to { transform: translateX(0) translateZ(0); }
-        }
-        
-        @keyframes fadeScaleIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .article-content h3 {
-            font-weight: 800;
-            color: #111;
-            margin-top: 1.5rem;
-            margin-bottom: 0.8rem;
-            font-size: 1.2rem;
-            letter-spacing: -0.02em;
-        }
-        .article-content p {
-            margin-bottom: 1rem;
-            line-height: 1.7;
-            color: #444;
-        }
-        .article-content ul {
-            list-style-type: none;
-            padding-left: 0;
-            margin-bottom: 1.5rem;
-        }
-        .article-content li {
-            position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.8rem;
-            color: #374151;
-        }
-        .article-content li::before {
-            content: '•';
-            color: #E30613;
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-            font-size: 1.2em;
-            line-height: 1;
-        }
-        
-        .hide-scroll::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scroll {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        .ticker-wrap {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            box-sizing: border-box;
-        }
-        .ticker-move {
-            display: inline-block;
-            white-space: nowrap;
-            animation: ticker 25s linear infinite;
-        }
-        @keyframes ticker {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-        .ticker-item {
-            display: inline-flex;
-            align-items: center;
-            padding: 0 1.5rem;
-        }
-
-        .reading-progress-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: transparent;
-            z-index: 100;
-        }
-        .reading-progress-bar {
-            height: 100%;
+            z-index: 9999;
             background: #E30613;
-            width: 0%;
-            transition: width 0.1s;
-            box-shadow: 0 0 10px rgba(227, 6, 19, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease;
         }
 
         .confetti {
             position: absolute;
-            width: 8px;
-            height: 8px;
-            z-index: 9999;
+            width: 6px;
+            height: 6px;
+            z-index: 1000;
             pointer-events: none;
-            animation: confetti-fall 3s ease-out forwards;
+            animation: fall 2s linear forwards;
         }
-        @keyframes confetti-fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+
+        .reading-progress-container { position: absolute; top: 0; left: 0; width: 100%; height: 3px; z-index: 100; }
+        .reading-progress-bar { height: 100%; background: #E30613; width: 0%; }
+        
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- AMBIENT BACKGROUND -->
-    <div class="ambient-light">
-        <div class="light-blob w-96 h-96 top-0 left-0 bg-red-600 mix-blend-screen"></div>
-        <div class="light-blob w-96 h-96 bottom-0 right-0 bg-blue-900 mix-blend-screen animation-delay-2000"></div>
-    </div>
-
     <!-- SPLASH SCREEN -->
-    <div id="splash-screen" class="absolute inset-0 z-[500] bg-gradient-to-br from-[#E30613] to-[#8a040b] flex flex-col items-center justify-center text-white">
-        <div class="w-40 h-40 mb-8 animate-float relative perspective-500">
-             <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl" style="transform: rotateX(10deg) rotateY(-10deg);">
-                <defs>
-                    <radialGradient id="gradSplash" cx="30%" cy="30%" r="70%">
-                        <stop offset="0%" style="stop-color:#ff5e62;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#a80000;stop-opacity:1" />
-                    </radialGradient>
-                    <filter id="glow">
-                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-                <circle cx="50" cy="50" r="40" fill="#E30613" filter="url(#glow)" opacity="0.6" />
-                <circle cx="50" cy="50" r="45" fill="url(#gradSplash)" stroke="white" stroke-width="2" />
-                <path d="M50,85 L50,40 L56,40 L55,30 L56,30 L56,25 L50,25 L50,20 L44,20 L44,25 L45,25 L44,30 L42,40 L50,40 Z" fill="#2d2d2d" />
-                <path d="M50,20 C50,20 60,10 56,0 C52,-8 46,0 42,-5 C38,-10 36,0 40,8 C42,15 50,20 50,20 Z" fill="#FFD700" filter="url(#glow)">
-                    <animate attributeName="d" values="M50,20 C50,20 60,10 56,0 C52,-8 46,0 42,-5 C38,-10 36,0 40,8 C42,15 50,20 50,20 Z; M50,20 C50,20 58,12 55,2 C51,-5 47,2 43,-3 C39,-6 38,2 41,10 C43,16 50,20 50,20 Z; M50,20 C50,20 60,10 56,0 C52,-8 46,0 42,-5 C38,-10 36,0 40,8 C42,15 50,20 50,20 Z" dur="2s" repeatCount="indefinite" />
-                </path>
-                <text x="50" y="68" font-family="Montserrat" font-weight="900" font-size="20" fill="white" text-anchor="middle" letter-spacing="3" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">CGT</text>
-            </svg>
+    <div id="splash-screen">
+        <div class="w-32 h-32 mb-6">
+            <!-- fetchpriority="high" pour charger le logo avant tout -->
+            <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full shadow-2xl border-2 border-white/20" fetchpriority="high">
         </div>
-        <div class="flex flex-col items-center gap-3">
-            <div class="h-1.5 w-48 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
-                <div class="h-full bg-white animate-[loading_2s_ease-in-out_infinite]" style="width: 50%"></div>
-            </div>
-            <p class="text-[10px] font-bold opacity-80 uppercase tracking-[0.2em] mt-2 animate-pulse">Chargement en cours</p>
+        <div class="w-12 h-1 bg-white/20 rounded-full overflow-hidden">
+            <div class="h-full bg-white w-full animate-pulse"></div>
         </div>
     </div>
 
-    <!-- APP FRAME -->
-    <div class="app-frame relative w-full h-full md:w-[375px] md:h-[90vh] md:max-h-[850px] md:rounded-[40px] overflow-hidden bg-bgLight flex flex-col font-sans">
-        
-        <!-- Header -->
-        <header class="bg-white/80 backdrop-blur-xl pt-10 pb-4 px-6 rounded-b-[30px] shadow-lg z-20 shrink-0 relative overflow-visible md:pt-14 border-b border-white/50">
-            <div class="flex justify-between items-center relative z-10">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 md:w-14 md:h-14 logo-shadow shrink-0 rounded-full p-0.5 bg-white border border-gray-100 hover:rotate-12 transition duration-500 cursor-pointer">
-                        <svg viewBox="0 0 100 100" class="w-full h-full">
-                            <defs>
-                                <linearGradient id="gradHeader" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#E30613;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#b30000;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <circle cx="50" cy="50" r="48" fill="url(#gradHeader)" />
-                             <path d="M50,85 L50,45 L45,45 L45,35 L55,35 L55,45 L50,45 Z" fill="#2d2d2d" opacity="0.8"/>
-                             <path d="M50,35 C50,35 58,25 55,15 C52,10 48,15 45,12 C42,8 40,15 42,22 C44,30 50,35 50,35 Z" fill="#FFD700" />
-                            <text x="50" y="70" font-family="Montserrat" font-weight="900" font-size="24" fill="white" text-anchor="middle">CGT</text>
-                        </svg>
-                    </div>
+    <div id="msg-box" class="message-box"></div>
 
-                    <div class="flex flex-col">
-                        <h1 class="font-extrabold text-lg leading-tight tracking-tight text-gray-900 drop-shadow-sm">CGT <span class="text-cgtRed">Total</span>Energies</h1>
-                        <div class="flex items-center gap-1.5 mt-0.5 bg-green-50 px-2 py-0.5 rounded-full w-fit">
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                            <p class="text-[9px] uppercase tracking-wider font-bold text-green-700" id="header-subtitle">Connecté</p>
-                        </div>
+    <div class="app-frame font-sans">
+        <!-- Header -->
+        <header>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3" onclick="goHome()">
+                    <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white">
+                        <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" fetchpriority="high">
+                    </div>
+                    <div>
+                        <h1 class="font-black text-sm leading-none">TotalEnergies</h1>
+                        <p class="text-[9px] text-green-600 font-bold uppercase mt-1 tracking-wider">● Connecté</p>
                     </div>
                 </div>
-                
-                <div class="flex items-center gap-2 relative">
-                    <!-- Notification Bell -->
-                    <button onclick="toggleNotifications()" class="bg-gray-100 p-2.5 rounded-full hover:bg-gray-200 transition active:scale-90 shadow-sm relative z-30">
-                        <i class="fas fa-bell text-gray-600 text-lg"></i>
-                        <span class="absolute top-2 right-2.5 w-2 h-2 bg-cgtRed rounded-full border border-white animate-bounce"></span>
-                    </button>
-                    
-                    <div id="notif-dropdown" class="absolute top-14 right-0 w-72 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 p-1 hidden-page z-50 transform origin-top-right transition-all scale-95 opacity-0" style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
-                        <div class="p-3 border-b border-gray-100 mb-1 flex justify-between items-center">
-                            <h4 class="text-xs font-black text-gray-800 uppercase tracking-wide">Notifications</h4>
-                            <span class="bg-cgtRed text-white text-[9px] px-1.5 py-0.5 rounded-md font-bold">2</span>
-                        </div>
-                        <div class="space-y-1 max-h-60 overflow-y-auto">
-                            <div class="p-3 hover:bg-red-50 rounded-xl cursor-pointer transition">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-cgtRed shrink-0">
-                                        <i class="fas fa-bullhorn text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-bold text-gray-900">Grève Générale</p>
-                                        <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Appel national pour le 15 Fév.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-3 hover:bg-blue-50 rounded-xl cursor-pointer transition">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-totalBlue shrink-0">
-                                        <i class="fas fa-file-contract text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-bold text-gray-900">Accord NAO</p>
-                                        <p class="text-[10px] text-gray-500 leading-tight mt-0.5">Nouvelle proposition reçue.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <button onclick="showMessage('Aucune notification')" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center relative border border-gray-100">
+                    <i class="fas fa-bell text-gray-400"></i>
+                    <span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-cgtRed rounded-full"></span>
+                </button>
+            </div>
+            <!-- Notif Dropdown -->
+            <div id="notif-dropdown" class="hidden absolute top-20 right-4 w-64 bg-white rounded-2xl shadow-2xl p-4 z-[100] border border-gray-100">
+                <p class="text-[10px] font-black mb-2 uppercase text-gray-400">Dernière alerte</p>
+                <p class="text-xs font-bold">Point NAO - Mise à jour disponible.</p>
             </div>
         </header>
 
-        <!-- Contenu Principal -->
-        <main class="flex-1 overflow-y-auto pb-28 relative scroll-smooth bg-bgLight perspective-1000" id="main-content">
+        <!-- Zone de Scroll -->
+        <div class="scroll-container" id="main-scroll">
             
-            <!-- VUE 1 : ACCUEIL / SITES -->
-            <div id="view-sites" class="p-6 fade-scale-in view-container relative z-10">
-                <div class="mb-4 flex justify-between items-end">
-                    <div>
-                        <h2 class="text-3xl font-black text-gray-800 tracking-tight">Nos Sites</h2>
-                        <p class="text-sm font-medium text-gray-400 mt-1">Sélectionnez votre raffinerie</p>
-                    </div>
-                    <div class="text-cgtRed text-[10px] font-bold bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 bg-cgtRed rounded-full"></span> 8 Sites
-                    </div>
-                </div>
-
-                <!-- WIDGETS DU QUOTIDIEN (ACCUEIL) -->
-                <div class="grid grid-cols-3 gap-3 mb-6 stagger-enter delay-100">
-                    <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1 hover:shadow-md transition active:scale-95 cursor-pointer">
-                        <i class="fas fa-cloud-sun text-yellow-500 text-xl"></i>
-                        <span class="text-xs font-bold text-gray-700">14°C</span>
-                        <span class="text-[9px] text-gray-400 font-bold uppercase">Météo</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1 hover:shadow-md transition active:scale-95 cursor-pointer group">
-                        <div class="relative">
-                            <i class="fas fa-car text-blue-500 text-xl group-hover:text-cgtRed transition"></i>
-                            <span class="absolute -top-1 -right-1 flex h-2 w-2">
-                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                            </span>
-                        </div>
-                        <span class="text-xs font-bold text-gray-700">Fluide</span>
-                        <span class="text-[9px] text-gray-400 font-bold uppercase">Trafic</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1 hover:shadow-md transition active:scale-95 cursor-pointer">
-                        <i class="fas fa-leaf text-green-500 text-xl"></i>
-                        <span class="text-xs font-bold text-gray-700">Air: Bon</span>
-                        <span class="text-[9px] text-gray-400 font-bold uppercase">Qualité</span>
-                    </div>
+            <!-- VUE 1 : ACCUEIL -->
+            <div id="view-sites" class="view-container active p-5">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-2xl font-black text-gray-800">Nos Sites</h2>
+                    <span class="text-[10px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100" id="sites-count">0 Sites</span>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4 pb-4" id="sites-grid">
-                    <!-- Cards générées par JS -->
+                <div class="grid grid-cols-3 gap-3 mb-8">
+                    <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
+                        <i class="fas fa-cloud-sun text-yellow-500 mb-1"></i>
+                        <div class="text-xs font-black">14°C</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
+                        <i class="fas fa-car text-blue-500 mb-1"></i>
+                        <div class="text-xs font-black">Fluide</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
+                        <i class="fas fa-leaf text-green-500 mb-1"></i>
+                        <div class="text-xs font-black">Bon</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4" id="sites-grid"></div>
+            </div>
+
+            <!-- VUE 2 : NEWS SITE -->
+            <div id="view-news" class="view-container">
+                <div class="relative h-56 w-full">
+                    <img src="" id="site-hero-img" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/40"></div>
+                    <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-white/20 backdrop-blur-md text-white rounded-full"><i class="fas fa-arrow-left"></i></button>
+                    <div class="absolute bottom-4 left-5">
+                        <h2 class="text-white text-2xl font-black leading-none" id="news-site-title">Site</h2>
+                        <p class="text-white/70 text-[10px] font-bold uppercase mt-1">Section Syndicale</p>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div id="news-feed" class="space-y-4"></div>
                 </div>
             </div>
 
-            <!-- VUE 2 : ACTUALITÉS (Journal) -->
-            <div id="view-news" class="hidden-page view-container relative z-20">
-                <!-- Image Hero -->
-                <div class="relative h-72 w-full overflow-hidden rounded-b-[40px] shadow-2xl z-10">
-                    <img src="" class="w-full h-full object-cover transition duration-[2s] transform scale-100 hover:scale-110" id="site-hero-img" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6 pb-12">
-                        <div class="stagger-enter delay-100">
-                             <div class="flex gap-2 mb-2">
-                                <span class="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider">SECTION SYNDICALE</span>
-                             </div>
-                             <h2 class="text-white text-4xl font-black leading-none drop-shadow-xl tracking-tight" id="news-site-title">Nom Site</h2>
-                             <div class="flex items-center gap-2 mt-3 text-white/80 text-xs font-bold bg-black/20 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm">
-                                 <i class="fas fa-users text-cgtRed"></i> <span id="site-users-count">1,240</span> Camarades
-                             </div>
-                        </div>
-                    </div>
-                    
-                    <button onclick="goHome()" class="absolute top-4 left-4 bg-black/20 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/20 hover:bg-white hover:text-black transition-all duration-300 active:scale-90 z-30 shadow-lg group">
-                        <i class="fas fa-arrow-left text-sm group-hover:-translate-x-0.5 transition-transform"></i>
-                    </button>
-                </div>
-
-                <div class="p-5 pb-24 -mt-8 relative z-20">
-                    <!-- SKELETON LOADER -->
-                    <div id="news-skeleton" class="space-y-4">
-                        <div class="bg-white p-4 rounded-3xl shadow-sm border border-white/60 h-32 flex gap-4">
-                            <div class="w-24 h-full skeleton rounded-2xl"></div>
-                            <div class="flex-1 py-2 space-y-3">
-                                <div class="w-16 h-4 skeleton rounded"></div>
-                                <div class="w-full h-4 skeleton rounded"></div>
-                                <div class="w-3/4 h-4 skeleton rounded"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CONTENU RÉEL -->
-                    <div id="news-content" class="hidden-page">
-                        
-                        <!-- Barre de Recherche -->
-                        <div class="relative mb-6 stagger-enter shadow-lg rounded-2xl group">
-                            <input type="text" id="search-input" placeholder="Rechercher une info..." class="w-full bg-white border-none rounded-2xl py-4 pl-12 pr-4 shadow-sm text-sm font-bold text-gray-700 focus:ring-0 outline-none group-hover:shadow-md transition">
-                            <i class="fas fa-search absolute left-4 top-4 text-gray-400 group-hover:text-cgtRed transition"></i>
-                        </div>
-
-                        <!-- ACTIONS RAPIDES -->
-                        <div class="flex gap-3 mb-6 overflow-x-auto pb-4 hide-scroll stagger-enter delay-100">
-                            <button onclick="switchTab('agenda')" class="bg-white text-gray-600 px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-gray-200/50 border border-white flex items-center gap-2 whitespace-nowrap active:scale-95 transition hover:text-cgtRed hover:shadow-lg">
-                                <i class="fas fa-calendar-alt text-cgtRed"></i> Agenda
-                            </button>
-                            <button onclick="openAccords()" class="bg-white text-gray-600 px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-gray-200/50 border border-white flex items-center gap-2 whitespace-nowrap active:scale-95 transition hover:text-blue-600 hover:shadow-lg">
-                                <i class="fas fa-file-contract text-blue-500"></i> Accords
-                            </button>
-                        </div>
-
-                        <!-- WIDGET "INFO TERRAIN" -->
-                        <div class="bg-gray-900 rounded-2xl p-3 mb-4 shadow-lg overflow-hidden relative stagger-enter delay-100 border border-gray-700">
-                            <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-900 to-transparent z-10"></div>
-                            <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-900 to-transparent z-10"></div>
-                            <div class="ticker-wrap">
-                                <div class="ticker-move text-xs font-bold text-white flex gap-8">
-                                    <div class="ticker-item"><i class="fas fa-wind text-blue-400 mr-2"></i> Torche Sud : Vent > 50km/h</div>
-                                    <div class="ticker-item"><i class="fas fa-hard-hat text-yellow-400 mr-2"></i> Jours sans accident : 42</div>
-                                    <div class="ticker-item"><i class="fas fa-flask text-green-400 mr-2"></i> Unité 4 : Démarrage en cours</div>
-                                    <div class="ticker-item"><i class="fas fa-bus text-purple-400 mr-2"></i> Navette 18h : +5 min retard</div>
-                                    <div class="ticker-item"><i class="fas fa-wind text-blue-400 mr-2"></i> Torche Sud : Vent > 50km/h</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- WIDGETS DU QUOTIDIEN (NEWS) -->
-                        <div class="grid grid-cols-3 gap-3 mb-6 stagger-enter delay-200">
-                            <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1 hover:shadow-md transition active:scale-95 cursor-pointer">
-                                <i class="fas fa-cloud-sun text-yellow-500 text-xl"></i>
-                                <span class="text-xs font-bold text-gray-700">14°C</span>
-                                <span class="text-[9px] text-gray-400 font-bold uppercase">Météo</span>
-                            </div>
-                            <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1 hover:shadow-md transition active:scale-95 cursor-pointer group">
-                                <div class="relative">
-                                    <i class="fas fa-car text-blue-500 text-xl group-hover:text-cgtRed transition"></i>
-                                    <span class="absolute -top-1 -right-1 flex h-2 w-2">
-                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                    </span>
-                                </div>
-                                <span class="text-xs font-bold text-gray-700">Fluide</span>
-                                <span class="text-[9px] text-gray-400 font-bold uppercase">Trafic</span>
-                            </div>
-                            <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1 hover:shadow-md transition active:scale-95 cursor-pointer">
-                                <i class="fas fa-leaf text-green-500 text-xl"></i>
-                                <span class="text-xs font-bold text-gray-700">Air: Bon</span>
-                                <span class="text-[9px] text-gray-400 font-bold uppercase">Qualité</span>
-                            </div>
-                        </div>
-
-                        <!-- Flash Info -->
-                        <div class="bg-gradient-to-r from-red-600 to-cgtRed p-1 rounded-3xl shadow-xl shadow-red-500/20 mb-8 stagger-enter delay-200 transform hover:scale-[1.01] transition duration-300">
-                            <div class="bg-white rounded-[20px] p-4 flex items-start gap-4 relative overflow-hidden">
-                                <div class="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full -mr-16 -mt-16 opacity-50 blur-xl group-hover:opacity-100 transition duration-1000"></div>
-                                <div class="bg-red-50 w-12 h-12 flex items-center justify-center rounded-2xl text-cgtRed shadow-sm shrink-0 z-10">
-                                    <i class="fas fa-bullhorn animate-pulse text-lg"></i>
-                                </div>
-                                <div class="z-10 flex-1">
-                                    <p class="text-[10px] font-black text-cgtRed uppercase tracking-widest mb-1 flex items-center gap-2">
-                                        <span class="w-1.5 h-1.5 bg-cgtRed rounded-full"></span> FLASH INFO
-                                    </p>
-                                    <p class="text-sm font-bold text-gray-900 leading-snug" id="site-flash-info">Chargement...</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- WIDGET "MINUTE JURIDIQUE" -->
-                        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-l-4 border-l-purple-500 border-gray-100 mb-8 stagger-enter delay-300 transform transition hover:-translate-y-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="bg-purple-100 text-purple-600 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs"><i class="fas fa-scale-balanced"></i></div>
-                                <h4 class="font-black text-gray-800 text-sm">La Minute Juridique</h4>
-                            </div>
-                            <p class="text-xs text-gray-600 font-medium leading-relaxed">
-                                <span class="text-purple-600 font-bold">Le saviez-vous ?</span> Le temps d'habillage et de déshabillage doit être rémunéré ou compensé par des repos si la tenue est obligatoire et doit être mise sur le lieu de travail.
-                            </p>
-                        </div>
-
-                        <!-- Filtres Catégories -->
-                        <div class="flex gap-3 mb-6 overflow-x-auto pb-2 hide-scroll stagger-enter delay-100 px-1">
-                             <button onclick="filterNews('all', this)" class="filter-btn active bg-gray-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-gray-900/20 whitespace-nowrap transition transform hover:scale-105">
-                                Tout
-                            </button>
-                            <button onclick="filterNews('Urgent', this)" class="filter-btn bg-white text-gray-500 px-5 py-2 rounded-xl text-xs font-bold shadow-sm border border-gray-100 whitespace-nowrap transition hover:bg-red-50 hover:text-cgtRed hover:border-red-100 transform hover:scale-105">
-                                Urgent
-                            </button>
-                            <button onclick="filterNews('Sécurité', this)" class="filter-btn bg-white text-gray-500 px-5 py-2 rounded-xl text-xs font-bold shadow-sm border border-gray-100 whitespace-nowrap transition hover:bg-orange-50 hover:text-orange-600 hover:border-orange-100 transform hover:scale-105">
-                                Sécurité
-                            </button>
-                            <button onclick="filterNews('CSE', this)" class="filter-btn bg-white text-gray-500 px-5 py-2 rounded-xl text-xs font-bold shadow-sm border border-gray-100 whitespace-nowrap transition hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transform hover:scale-105">
-                                CSE
-                            </button>
-                             <button onclick="filterNews('Social', this)" class="filter-btn bg-white text-gray-500 px-5 py-2 rounded-xl text-xs font-bold shadow-sm border border-gray-100 whitespace-nowrap transition hover:bg-green-50 hover:text-green-600 hover:border-green-100 transform hover:scale-105">
-                                Social
-                            </button>
-                        </div>
-
-                        <!-- SONDAGE INTERACTIF -->
-                        <div class="bg-white p-6 rounded-[30px] shadow-xl shadow-blue-900/5 border border-white mb-8 stagger-enter delay-300 relative overflow-hidden transform transition hover:-translate-y-1">
-                            <div class="absolute top-0 left-0 w-2 h-full bg-totalBlue"></div>
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="bg-blue-50 text-totalBlue text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider">Sondage Express</span>
-                                <span class="text-[10px] text-gray-400 font-bold flex items-center gap-1"><i class="far fa-clock"></i> Fin dans 24h</span>
-                            </div>
-                            <h4 class="font-extrabold text-gray-900 mb-5 text-sm leading-relaxed">Êtes-vous favorable à la reconduction de la grève pour 48h ?</h4>
-                            <div class="space-y-3">
-                                <button onclick="votePoll(this, 1)" class="w-full bg-gray-50 hover:bg-blue-600 hover:text-white border border-gray-100 rounded-2xl py-3.5 px-5 text-left text-xs font-bold text-gray-600 transition-all duration-300 flex justify-between items-center group shadow-sm hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5">
-                                    <span>OUI, il faut durcir le mouvement</span>
-                                    <span class="opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-check-circle"></i></span>
-                                </button>
-                                <button onclick="votePoll(this, 2)" class="w-full bg-gray-50 hover:bg-gray-200 border border-gray-100 rounded-2xl py-3.5 px-5 text-left text-xs font-bold text-gray-600 transition-all duration-300 flex justify-between items-center group shadow-sm hover:shadow-md">
-                                    <span>NON, privilégier la négociation</span>
-                                </button>
-                            </div>
-                            <div id="poll-result" class="hidden-page mt-5 animate-pulse">
-                                <div class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                                    <span>Résultats en direct</span>
-                                    <span class="text-totalBlue">78% OUI</span>
-                                </div>
-                                <div class="w-full bg-gray-100 rounded-full h-3 mb-2 overflow-hidden">
-                                    <div class="bg-gradient-to-r from-blue-400 to-totalBlue h-full rounded-full transition-all duration-1000" style="width: 0%" id="poll-bar"></div>
-                                </div>
-                                <p class="text-[10px] text-right text-gray-400 font-medium">142 votes enregistrés</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between mb-5 stagger-enter delay-400 pl-1">
-                            <h3 class="font-extrabold text-xl text-gray-900 tracking-tight">À la une</h3>
-                            <button class="text-cgtRed text-xs font-bold bg-red-50 px-3 py-1 rounded-lg">Tout voir</button>
-                        </div>
-                        
-                        <div id="news-feed" class="space-y-5">
-                            <!-- Articles générés par JS -->
-                        </div>
-                    </div>
-                </div>
+            <!-- VUE 3 : AGENDA -->
+            <div id="view-agenda" class="view-container p-5">
+                <h2 class="text-2xl font-black mb-6">Calendrier</h2>
+                <div id="agenda-list" class="space-y-4"></div>
             </div>
 
-            <!-- VUE 3 : ACCORDS (ISOLÉE POUR CORRIGER LE BUG DE SCROLL) -->
-            <div id="view-accords" class="hidden-page absolute inset-0 bg-white z-[250] overflow-y-auto view-container">
-                <div class="p-6 pt-20 min-h-screen bg-bgLight">
-                    <button onclick="closeAccords()" class="absolute top-6 left-6 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-800 z-10 active:scale-90 transition hover:bg-gray-50"><i class="fas fa-times"></i></button>
-                    
-                    <h2 class="text-4xl font-black text-gray-900 mb-3 mt-4 tracking-tighter">Accords<br><span class="text-totalBlue">Entreprise</span></h2>
-                    <p class="text-gray-500 text-sm mb-10 font-medium">Consultez et téléchargez les textes officiels en vigueur.</p>
-
-                    <div class="space-y-4">
-                        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-center gap-5 cursor-pointer group" onclick="downloadDoc('Accord_Teletravail_2026.pdf')">
-                            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-blue-600 group-hover:text-white transition duration-300 shadow-inner">
-                                <i class="fas fa-file-pdf"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-900 text-lg leading-tight group-hover:text-blue-600 transition">Accord Télétravail</h4>
-                                <p class="text-xs text-gray-400 mt-1 font-semibold">Signé le 12 Jan 2026 • 2.4 MB</p>
-                            </div>
-                            <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 transition">
-                                <i class="fas fa-download text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-center gap-5 cursor-pointer group" onclick="downloadDoc('Accord_Interessement.pdf')">
-                            <div class="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-green-600 group-hover:text-white transition duration-300 shadow-inner">
-                                <i class="fas fa-file-signature"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-900 text-lg leading-tight group-hover:text-green-600 transition">Intéressement</h4>
-                                <p class="text-xs text-gray-400 mt-1 font-semibold">Avenant n°3 • 1.8 MB</p>
-                            </div>
-                            <div class="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-green-600 transition">
-                                <i class="fas fa-download text-xs"></i>
-                            </div>
-                        </div>
-                    </div>
+            <!-- VUE 4 : CONTACT -->
+            <div id="view-contact" class="view-container p-5">
+                <div class="bg-gray-900 p-8 rounded-[30px] text-white text-center mb-8">
+                    <h2 class="text-xl font-black mb-2">Aide & Support</h2>
+                    <p class="text-xs text-gray-400">Vos délégués vous répondent.</p>
+                </div>
+                <div class="space-y-4">
+                    <select id="contact-site-select" class="w-full bg-white p-4 rounded-xl border border-gray-200 font-bold shadow-sm outline-none mb-2"></select>
+                    <a href="mailto:Jad.zorgui07@gmail.com" class="block w-full bg-cgtRed text-white text-center py-4 rounded-xl font-bold shadow-lg shadow-red-500/20">EMAIL CGT</a>
+                    <a href="https://wa.me/33788408004" target="_blank" class="block w-full bg-white border border-gray-200 text-center py-4 rounded-xl font-bold text-[#25D366]">WHATSAPP</a>
                 </div>
             </div>
+        </div>
 
-            <!-- VUE 4 : AGENDA -->
-            <div id="view-agenda" class="hidden-page p-6 fade-in pt-24">
-                <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Calendrier<br><span class="text-cgtRed">Social</span></h2>
-                <div class="space-y-6" id="agenda-list"></div>
-            </div>
-
-            <!-- VUE 5 : CONTACT -->
-            <div id="view-contact" class="hidden-page p-6 fade-in pt-10">
-                <div class="bg-gradient-to-br from-gray-900 to-black p-8 rounded-[36px] shadow-2xl shadow-black/20 text-center mb-10 relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-cgtRed rounded-full -mr-10 -mt-10 opacity-20 blur-3xl group-hover:opacity-30 transition duration-1000"></div>
-                    <div class="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-inner">
-                        <i class="fas fa-headset text-3xl text-white"></i>
-                    </div>
-                    <h2 class="text-3xl font-black text-white mb-2">Besoin d'aide ?</h2>
-                    <p class="text-sm text-gray-400 font-medium leading-relaxed max-w-[200px] mx-auto">Vos délégués vous répondent directement et en toute confidentialité.</p>
-                </div>
-                
-                <div class="space-y-8">
-                    <div class="group">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest mb-2 block">Votre Site</label>
-                        <div class="relative">
-                             <select id="contact-site-select" class="w-full bg-white border-0 rounded-2xl p-5 text-sm outline-none appearance-none font-bold text-gray-800 shadow-lg shadow-gray-200/50 focus:ring-2 focus:ring-cgtRed transition"></select>
-                            <i class="fas fa-chevron-down absolute right-6 top-5 text-gray-400 text-xs pointer-events-none"></i>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <a href="mailto:Jad.zorgui07@gmail.com?subject=Contact%20App%20CGT" class="block w-full bg-gradient-to-r from-red-600 to-cgtRed text-white font-bold py-5 rounded-2xl shadow-xl shadow-red-500/40 hover:shadow-red-500/60 transition transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-4 group">
-                            <div class="bg-white/20 p-2 rounded-lg"><i class="fas fa-envelope text-lg"></i></div>
-                            <span class="tracking-wide">ENVOYER UN EMAIL</span>
-                        </a>
-
-                        <a href="https://wa.me/33788408004" target="_blank" class="block w-full bg-white text-gray-800 border border-gray-100 font-bold py-5 rounded-2xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-4 group">
-                            <div class="bg-green-100 text-green-600 p-2 rounded-lg group-hover:bg-green-500 group-hover:text-white transition"><i class="fab fa-whatsapp text-xl"></i></div>
-                            <span class="tracking-wide group-hover:text-green-600 transition">WHATSAPP</span>
-                        </a>
-                    </div>
-
-                    <p class="text-[10px] text-gray-400 text-center px-4 mt-8 font-medium leading-relaxed">
-                        <i class="fas fa-info-circle mr-1"></i> En cas d'urgence absolue, utilisez les canaux officiels de votre site.
-                    </p>
-                </div>
-            </div>
-
-        </main>
-
-        <!-- NAVIGATION -->
-        <nav class="absolute bottom-8 left-6 right-6 glass-panel rounded-full px-2 py-3 shadow-[0_20px_40px_rgba(0,0,0,0.1)] z-40 border border-white/60 flex justify-between items-center overflow-hidden">
-            <div class="absolute inset-0 bg-white/40 backdrop-blur-xl -z-10"></div>
-            
-            <button onclick="switchTab('home')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-cgtRed transition relative group" id="btn-home">
-                <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center transition duration-300 group-hover:scale-110 shadow-sm group-hover:shadow-red-200/50">
-                     <i class="fas fa-home text-xl"></i>
-                </div>
-            </button>
-            <button onclick="switchTab('agenda')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-gray-400 transition group" id="btn-agenda">
-                <div class="w-12 h-12 rounded-full hover:bg-gray-50 flex items-center justify-center transition duration-300 group-hover:scale-110">
-                    <i class="fas fa-calendar-alt text-xl"></i>
-                </div>
-            </button>
-            <button onclick="switchTab('contact')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-gray-400 transition group" id="btn-contact">
-                 <div class="w-12 h-12 rounded-full hover:bg-gray-50 flex items-center justify-center transition duration-300 group-hover:scale-110">
-                    <i class="fas fa-comment-dots text-xl"></i>
-                </div>
-            </button>
+        <!-- Navigation Fixe -->
+        <nav class="absolute bottom-6 left-6 right-6 tab-nav rounded-full p-2 flex justify-around items-center shadow-2xl z-[100]">
+            <button onclick="switchTab('home')" id="btn-home" class="w-12 h-12 rounded-full flex items-center justify-center transition-all bg-cgtRed text-white shadow-lg"><i class="fas fa-home"></i></button>
+            <button onclick="switchTab('agenda')" id="btn-agenda" class="w-12 h-12 rounded-full flex items-center justify-center transition-all text-gray-400"><i class="fas fa-calendar-alt"></i></button>
+            <button onclick="switchTab('contact')" id="btn-contact" class="w-12 h-12 rounded-full flex items-center justify-center transition-all text-gray-400"><i class="fas fa-comment-dots"></i></button>
         </nav>
 
-        <!-- VUE ARTICLE -->
-        <div id="view-article" class="hidden-page absolute inset-0 bg-white z-[300] overflow-y-auto view-container">
-            <div class="reading-progress-container">
-                <div class="reading-progress-bar" id="reading-progress"></div>
+        <!-- Overlay Article -->
+        <div id="view-article" class="hidden absolute inset-0 bg-white z-[500] overflow-y-auto">
+            <div class="reading-progress-container"><div class="reading-progress-bar" id="reading-progress"></div></div>
+            <div class="relative h-64">
+                <img id="article-img" src="" class="w-full h-full object-cover">
+                <button onclick="closeArticle()" class="absolute top-6 right-6 w-10 h-10 bg-black/30 text-white rounded-full flex items-center justify-center backdrop-blur-md"><i class="fas fa-times"></i></button>
             </div>
-            <div class="relative h-96">
-                <img id="article-img" src="" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'">
-                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white"></div>
-                <button onclick="closeArticle()" class="absolute top-12 right-6 bg-white/20 backdrop-blur-xl text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border border-white/40 z-50 hover:bg-white hover:text-black transition duration-300 active:scale-90">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="relative -mt-32 px-6 pb-32 z-10">
-                <div class="bg-white/80 backdrop-blur-md rounded-[30px] p-8 shadow-2xl border border-white/50">
-                    <div class="mb-6">
-                         <span id="article-tag" class="bg-cgtRed text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-md shadow-red-500/30">Tag</span>
-                    </div>
-                    <h1 id="article-title" class="text-3xl font-black text-gray-900 leading-none mb-6 tracking-tight">Titre</h1>
-                    
-                    <div class="flex items-center gap-4 text-xs font-bold text-gray-500 mb-8 pb-6 border-b border-gray-100">
-                        <div class="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full">
-                            <i class="far fa-clock"></i> <span id="article-date">Date</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" class="w-full h-full object-cover"></div>
-                            <span id="article-author">Délégué Syndical</span>
-                        </div>
-                    </div>
-                    
-                    <div id="article-body" class="article-content text-base text-gray-600 leading-relaxed font-medium"></div>
-                    
-                    <!-- BOUTON SOUTENIR -->
-                    <div class="mt-8 border-t border-gray-100 pt-6">
-                        <button onclick="toggleSupport(this)" class="w-full flex items-center justify-center gap-2 bg-gray-50 text-gray-500 font-bold py-4 rounded-2xl hover:bg-red-50 hover:text-cgtRed transition duration-300 group">
-                            <i class="far fa-hand-rock text-xl group-hover:scale-110 transition"></i>
-                            <span class="support-text">SOUTENIR (42)</span>
-                        </button>
-                    </div>
+            <div class="p-6">
+                <span id="article-tag" class="text-[10px] font-black text-cgtRed uppercase bg-red-50 px-2 py-1 rounded">TAG</span>
+                <h1 id="article-title" class="text-2xl font-black mt-3 leading-tight text-gray-900">Titre</h1>
+                <p id="article-author" class="text-xs text-gray-400 mt-2 font-bold italic">Auteur</p>
+                <div id="article-body" class="mt-6 text-gray-700 leading-relaxed text-sm"></div>
+                <div class="mt-10 mb-20">
+                    <button onclick="toggleSupport(this)" class="w-full py-4 bg-gray-50 border border-gray-100 rounded-xl font-bold text-gray-500">
+                        <i class="far fa-hand-rock mr-2"></i> <span class="btn-support-text">SOUTENIR (42)</span>
+                    </button>
                 </div>
             </div>
         </div>
-
-        <!-- Toast -->
-        <div id="toast" class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-gray-900/95 backdrop-blur-md text-white text-xs font-bold py-3.5 px-8 rounded-full shadow-2xl opacity-0 transition-all z-[600] pointer-events-none translate-y-[-20px] flex items-center gap-3 w-max border border-white/10">
-            <i class="fas fa-check-circle text-green-400 text-lg"></i>
-            <span id="toast-msg">Action effectuée</span>
-        </div>
-
     </div>
 
     <script>
-        // DONNÉES SITES
-        const sites = [
-            { id: 'lamede', name: 'La Mède', region: 'Provence', icon: 'fa-industry', img: 'lamede.jpg', users: '980', flash: "Arrêt technique Bio-Raffinerie : Début Lundi" },
-            { id: 'feyzin', name: 'Feyzin', region: 'Lyon', icon: 'fa-burn', img: 'feyzin.jpg', users: '1,450', flash: "Vallée de la Chimie : Grève le 15 Mars" },
-            { id: 'normandie', name: 'Normandie', region: 'Le Havre', icon: 'fa-ship', img: 'normandie.jpg', users: '2,100', flash: "Blocage des expéditions Maritimes en cours" },
-            { id: 'donges', name: 'Donges', region: 'St-Nazaire', icon: 'fa-water', img: 'donges.jpg', users: '890', flash: "Négociations locales : Réunion à 14h" },
-            { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', icon: 'fa-solar-panel', img: 'grandpuits.jpg', users: '650', flash: "Projet Solaire : Présentation CSE" },
-            { id: 'carling', name: 'Carling', region: 'Est', icon: 'fa-flask', img: 'carling.jpg', users: '420', flash: "Sécurité : Rappel des consignes EPI" }
+        const rawSites = [
+            { id: 'lamede', name: 'La Mède', region: 'Provence', img: 'lamede.jpg' },
+            { id: 'feyzin', name: 'Feyzin', region: 'Lyon', img: 'feyzin.jpg' },
+            { id: 'normandie', name: 'Normandie', region: 'Le Havre', img: 'normandie.jpg' },
+            { id: 'donges', name: 'Donges', region: 'St-Nazaire', img: 'donges.jpg' },
+            { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', img: 'grandpuits.jpg' },
+            { id: 'carling', name: 'Carling', region: 'Est', img: 'carling.jpg' },
+            { id: 'flandres', name: 'Flandres', region: 'Dunkerque', img: 'flandres.jpg' },
+            { id: 'oudalle', name: 'Oudalle', region: 'Seine-Maritime', img: 'oudalle.jpg' }
         ];
 
-        // BASE DE DONNÉES CONTENU
+        const sites = rawSites.sort((a, b) => a.name.localeCompare(b.name));
+
         const siteContent = {
             'lamede': [
-                { title: "Grand Arrêt 2026 : La sécurité avant tout", date: "12 Fév 2026", tag: "Sécurité", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80", content: `<p>Camarades de La Mède, le Grand Arrêt de la Bio-Raffinerie approche. La CGT exige une vigilance accrue sur les conditions de sécurité et le recours à la sous-traitance en cascade.</p>` },
-                { title: "Planning 5x8 : Refusons la flexibilité", date: "09 Fév 2026", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80", content: `<p>La direction veut modifier nos cycles de repos. Nous portons la voix des équipes A et B : non à la dégradation de notre équilibre vie privée/vie professionnelle.</p>` }
-            ],
-            'feyzin': [
-                { title: "Incident Unité 12 : Alerte DGI déposée", date: "10 Fév 2026", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?auto=format&fit=crop&w=800&q=80", content: `<p>L'incident de la torche Sud démontre la vétusté des vannes. Nous avons déposé un DGI (Danger Grave et Imminent). La sécurité n'est pas négociable.</p>` }
-            ],
-            'carling': [
-                { title: "Avenir du site : Inquiétudes stratégiques", date: "11 Fév 2026", tag: "Stratégie", author: "Karim", image: "carling_avenir.jpg", content: `<p>Face aux rumeurs de restructuration, la CGT demande des garanties écrites sur le maintien de l'emploi industriel à Carling pour les 10 prochaines années.</p>` },
-                { title: "Conditions de travail : Chaleur et EPI", date: "08 Fév 2026", tag: "Santé", author: "Fred", image: "carling_sante.jpg", content: `<p>Avec les pics de chaleur, nos tenues ne sont plus adaptées. Nous demandons une dotation immédiate de vêtements respirants pour les opérateurs terrain.</p>` }
+                { title: "Grand Arrêt 2026 : Sécurité", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600", content: "Vigilance accrue sur les installations." }
             ],
             'default': [
-                { title: "NAO 2026 : Appel à la mobilisation", date: "10 Fév 2026", tag: "National", author: "Olivier", image: "nao.jpg", content: `<p>6% d'augmentation générale sinon rien ! La direction propose des miettes face à une inflation record. Grève nationale mercredi prochain.</p>` }
+                { title: "Point National NAO", tag: "National", author: "Olivier", image: "nao.jpg", content: "Mobilisation pour le pouvoir d'achat." }
             ]
         };
 
-        const agendaData = [
-            { month: "Février 2026", events: [
-                { day: "12", title: "Réunion NAO #4", time: "10:00 - Siège", type: "Négo" },
-                { day: "15", title: "AG du Personnel", time: "14:00 - Devant Cantine", type: "Grève", color: "text-cgtRed" },
-            ]}
-        ];
-
-        let currentSite = null;
-        let currentFilter = 'all';
-
-        // --- SPLASH SCREEN ---
-        setTimeout(() => {
-            document.getElementById('splash-screen').classList.add('hide');
-        }, 2200);
+        function showMessage(text) {
+            const box = document.getElementById('msg-box');
+            box.textContent = text;
+            box.style.opacity = '1';
+            setTimeout(() => { box.style.opacity = '0'; }, 2000);
+        }
 
         function init() {
-            renderSites();
-            renderAgenda();
+            const grid = document.getElementById('sites-grid');
             const select = document.getElementById('contact-site-select');
-            sites.forEach(site => {
-                const opt = document.createElement('option');
-                opt.value = site.id;
-                opt.textContent = site.name;
-                select.appendChild(opt);
-            });
             
-            document.getElementById('search-input').addEventListener('input', function(e) {
-                const term = e.target.value.toLowerCase();
-                const siteId = currentSite ? currentSite.id : 'default';
-                renderNews(siteId, term, currentFilter);
+            sites.forEach((s, index) => {
+                // Priority loading pour les 4 premières images de la grille
+                const priority = index < 4 ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"';
+                
+                grid.innerHTML += `
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50 active:bg-gray-50 transition" onclick="selectSite('${s.id}')">
+                        <div class="h-24 bg-gray-200 relative">
+                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" ${priority} onerror="this.parentElement.style.backgroundColor='#eee';this.style.display='none'">
+                        </div>
+                        <div class="p-3">
+                            <h3 class="font-black text-xs leading-none">${s.name}</h3>
+                            <p class="text-[8px] text-gray-400 font-bold uppercase mt-1">${s.region}</p>
+                        </div>
+                    </div>`;
+                select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
             });
 
+            document.getElementById('sites-count').textContent = sites.length + " Sites";
+
+            const agenda = document.getElementById('agenda-list');
+            agenda.innerHTML = `
+                <div class="bg-white p-4 rounded-xl border border-gray-50 shadow-sm flex items-center gap-4">
+                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-cgtRed font-black text-sm">12</div>
+                    <div><p class="text-sm font-bold">Réunion NAO #4</p><p class="text-[10px] text-gray-400">Siège Paris</p></div>
+                </div>`;
+
+            // On retire le splash dès que le script a fini d'injecter le HTML de base
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.style.display = 'none', 400);
+                }, 800);
+            }
+
             document.getElementById('view-article').addEventListener('scroll', function() {
-                const scrollTop = this.scrollTop;
-                const scrollHeight = this.scrollHeight - this.clientHeight;
-                const progress = (scrollTop / scrollHeight) * 100;
+                const progress = (this.scrollTop / (this.scrollHeight - this.clientHeight)) * 100;
                 document.getElementById('reading-progress').style.width = progress + '%';
             });
         }
 
-        function renderSites() {
-            const grid = document.getElementById('sites-grid');
-            grid.innerHTML = '';
-            sites.forEach((site, index) => {
-                const card = document.createElement('div');
-                card.className = `card-3d relative h-48 rounded-[28px] overflow-hidden cursor-pointer shadow-lg group stagger-enter delay-${(index+1)*100}`;
-                card.onclick = () => selectSite(site);
-                card.innerHTML = `
-                    <div class="absolute inset-0 bg-cover bg-center transition duration-1000 group-hover:scale-110" style="background-image: url('${site.img}')"></div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-                    <div class="absolute bottom-6 left-6 text-white transform transition duration-300 group-hover:translate-y-[-5px]">
-                         <div class="w-10 h-10 mb-3 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg group-hover:bg-cgtRed group-hover:border-cgtRed transition">
-                            <i class="fas ${site.icon} text-sm"></i>
-                        </div>
-                        <h3 class="font-black text-xl leading-none tracking-tight mb-1 text-white">${site.name}</h3>
-                        <p class="text-[10px] opacity-80 font-bold uppercase tracking-widest text-gray-200">${site.region}</p>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function selectSite(site) {
-            currentSite = site;
+        function selectSite(id) {
+            const site = sites.find(s => s.id === id);
             document.getElementById('news-site-title').textContent = site.name;
             document.getElementById('site-hero-img').src = site.img;
-            document.getElementById('site-users-count').textContent = site.users;
-            document.getElementById('site-flash-info').textContent = site.flash;
-            
-            document.getElementById('view-sites').classList.add('hidden-page');
-            document.getElementById('view-news').classList.remove('hidden-page');
-            document.getElementById('view-news').classList.add('slide-in-right');
-            
-            document.getElementById('news-skeleton').classList.remove('hidden-page');
-            document.getElementById('news-content').classList.add('hidden-page');
-            
-            currentFilter = 'all';
-            updateFilterButtons(null);
-
-            setTimeout(() => {
-                document.getElementById('news-skeleton').classList.add('hidden-page');
-                document.getElementById('news-content').classList.remove('hidden-page');
-                document.getElementById('news-content').classList.add('fade-scale-in');
-                renderNews(site.id);
-            }, 800);
-
-            switchTab('home');
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-news').classList.add('active');
+            document.getElementById('main-scroll').scrollTop = 0;
+            renderNews(id);
         }
 
-        function filterNews(filter, btn) {
-            currentFilter = filter;
-            if(btn) updateFilterButtons(btn);
-            const siteId = currentSite ? currentSite.id : 'default';
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            renderNews(siteId, searchTerm, filter);
-        }
-
-        function updateFilterButtons(activeBtn) {
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('active', 'bg-gray-900', 'text-white', 'shadow-lg', 'scale-105');
-                b.classList.add('bg-white', 'text-gray-500', 'border', 'border-gray-100');
-            });
-            if(activeBtn) {
-                activeBtn.classList.remove('bg-white', 'text-gray-500', 'border', 'border-gray-100');
-                activeBtn.classList.add('active', 'bg-gray-900', 'text-white', 'shadow-lg', 'scale-105');
-            }
-        }
-
-        function renderNews(siteId, searchTerm = '', filter = 'all') {
+        function renderNews(id) {
             const feed = document.getElementById('news-feed');
             feed.innerHTML = '';
-            const data = siteContent[siteId] || siteContent['default'] || [];
-            const filteredData = data.filter(news => {
-                const matchesSearch = news.title.toLowerCase().includes(searchTerm) || news.tag.toLowerCase().includes(searchTerm);
-                const matchesFilter = filter === 'all' || news.tag === filter;
-                return matchesSearch && matchesFilter;
-            });
-            
-            if (filteredData.length === 0) {
-                feed.innerHTML = '<div class="text-center py-12 opacity-50"><p class="text-sm font-bold text-gray-400">Aucun article trouvé.</p></div>';
-                return;
-            }
-            
-            filteredData.forEach((news, idx) => {
-                const item = document.createElement('div');
-                item.className = `bg-white p-4 rounded-[28px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex gap-5 cursor-pointer stagger-enter delay-${(idx+1)*100} group`;
-                item.onclick = () => openArticle(news);
-                const tagColor = news.tag === 'Urgent' || news.tag === 'Alerte' ? 'bg-red-50 text-cgtRed' : 'bg-blue-50 text-totalBlue';
-                item.innerHTML = `
-                    <div class="w-28 h-28 shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-inner relative">
-                        <img src="${news.image}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80'">
-                    </div>
-                    <div class="flex-1 flex flex-col justify-between py-1">
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-[9px] font-black px-2.5 py-1 rounded-lg ${tagColor} uppercase tracking-wider shadow-sm">${news.tag}</span>
-                                <span class="text-[10px] text-gray-400 font-bold">${news.date}</span>
-                            </div>
-                            <h4 class="font-bold text-sm text-gray-900 leading-snug line-clamp-2 group-hover:text-cgtRed transition">${news.title}</h4>
-                        </div>
-                        <div class="flex items-center gap-1 text-[10px] font-bold text-gray-400 mt-2">
-                            <span>Par ${news.author} • Lire</span> <i class="fas fa-arrow-right text-[8px]"></i>
-                        </div>
-                    </div>
-                `;
-                feed.appendChild(item);
-            });
-        }
-
-        function toggleNotifications() {
-            const dropdown = document.getElementById('notif-dropdown');
-            if (dropdown.classList.contains('hidden-page')) {
-                dropdown.classList.remove('hidden-page');
-                setTimeout(() => dropdown.classList.remove('opacity-0', 'scale-95'), 10);
-            } else {
-                dropdown.classList.add('opacity-0', 'scale-95');
-                setTimeout(() => dropdown.classList.add('hidden-page'), 200);
-            }
-        }
-
-        function votePoll(btn, option) {
-            launchConfetti();
-            const buttons = btn.parentElement.querySelectorAll('button');
-            buttons.forEach(b => b.classList.add('hidden-page')); 
-            const resultDiv = document.getElementById('poll-result');
-            resultDiv.classList.remove('hidden-page');
-            setTimeout(() => document.getElementById('poll-bar').style.width = '78%', 100);
-            showToast("Vote enregistré !");
-        }
-
-        function openArticle(news) {
-            document.getElementById('reading-progress').style.width = '0%';
-            document.getElementById('article-title').textContent = news.title;
-            document.getElementById('article-date').textContent = news.date;
-            document.getElementById('article-img').src = news.image;
-            document.getElementById('article-tag').textContent = news.tag;
-            document.getElementById('article-body').innerHTML = news.content;
-            document.getElementById('article-author').textContent = news.author || "Délégué Syndical";
-            const view = document.getElementById('view-article');
-            view.classList.remove('hidden-page');
-            view.scrollTop = 0;
-        }
-
-        function closeArticle() {
-            document.getElementById('view-article').classList.add('hidden-page');
-        }
-
-        function toggleSupport(btn) {
-            const icon = btn.querySelector('i');
-            const text = btn.querySelector('.support-text');
-            if (btn.classList.contains('bg-red-50')) {
-                btn.classList.remove('bg-red-50', 'text-cgtRed');
-                btn.classList.add('bg-gray-50', 'text-gray-500');
-                icon.classList.replace('fas', 'far'); 
-                text.textContent = "SOUTENIR (42)";
-            } else {
-                launchConfetti();
-                btn.classList.remove('bg-gray-50', 'text-gray-500');
-                btn.classList.add('bg-red-50', 'text-cgtRed');
-                icon.classList.replace('far', 'fas'); 
-                icon.classList.add('animate-bounce');
-                text.textContent = "SOUTENU ! (43)";
-                showToast("Soutien enregistré !");
-            }
-        }
-
-        function openAccords() {
-            const view = document.getElementById('view-accords');
-            view.classList.remove('hidden-page');
-            view.scrollTop = 0;
-            view.classList.add('slide-in-right');
-        }
-        
-        function closeAccords() {
-             document.getElementById('view-accords').classList.add('hidden-page');
-        }
-
-        function downloadDoc(filename) {
-            const text = "Document simulé : " + filename;
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            showToast("Téléchargement...");
-        }
-
-        function renderAgenda() {
-            const list = document.getElementById('agenda-list');
-            list.innerHTML = '';
-            agendaData.forEach(month => {
-                list.innerHTML += month.events.map((evt, idx) => `
-                    <div class="bg-white p-6 rounded-[28px] shadow-sm border border-white hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-center gap-6 cursor-pointer group stagger-enter delay-${(idx+1)*100}">
-                        <div class="text-center w-16 shrink-0 bg-red-50 rounded-2xl py-3 group-hover:bg-cgtRed group-hover:text-white transition duration-300 shadow-inner">
-                            <span class="block text-2xl font-black leading-none">${evt.day}</span>
-                            <span class="block text-[10px] font-bold uppercase mt-1">Fév</span>
-                        </div>
+            const data = siteContent[id] || siteContent['default'];
+            data.forEach(n => {
+                feed.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm flex gap-4 active:bg-gray-50" onclick="openArticle('${id}', '${n.title.replace(/'/g, "\\'")}')">
+                        <img src="${n.image}" class="w-16 h-16 rounded-xl object-cover shrink-0" onerror="this.src='https://via.placeholder.com/100'">
                         <div class="flex-1">
-                            <h4 class="font-bold text-base text-gray-900 group-hover:text-cgtRed transition">${evt.title}</h4>
-                            <p class="text-xs text-gray-400 font-bold mt-1 flex items-center gap-1"><i class="far fa-clock"></i> ${evt.time}</p>
+                            <span class="text-[7px] font-black text-cgtRed uppercase">${n.tag}</span>
+                            <h4 class="font-bold text-xs leading-snug mt-1">${n.title}</h4>
+                            <p class="text-[8px] text-gray-400 mt-1">Par ${n.author}</p>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`;
             });
         }
 
-        function goHome() {
-            document.getElementById('view-news').classList.add('hidden-page');
-            document.getElementById('view-sites').classList.remove('hidden-page');
-            currentSite = null;
-            switchTab('home');
+        function openArticle(siteId, title) {
+            const data = siteContent[siteId] || siteContent['default'];
+            const art = data.find(n => n.title === title);
+            document.getElementById('article-title').textContent = art.title;
+            document.getElementById('article-img').src = art.image;
+            document.getElementById('article-tag').textContent = art.tag;
+            document.getElementById('article-author').textContent = "Rédigé par " + art.author;
+            document.getElementById('article-body').innerHTML = art.content;
+            document.getElementById('view-article').classList.remove('hidden');
+            document.getElementById('view-article').scrollTop = 0;
         }
 
         function switchTab(tab) {
             ['home', 'agenda', 'contact'].forEach(t => {
                 const btn = document.getElementById(`btn-${t}`);
-                const isActive = t === tab;
-                const iconContainer = btn.firstElementChild;
-                if (isActive) {
-                    iconContainer.classList.remove('bg-red-50', 'text-cgtRed');
-                    iconContainer.classList.add('bg-cgtRed', 'text-white', 'shadow-lg', 'scale-110');
+                if (t === tab) {
+                    btn.className = "w-12 h-12 rounded-full flex items-center justify-center bg-cgtRed text-white shadow-lg";
                 } else {
-                    iconContainer.classList.add('bg-red-50', 'text-cgtRed');
-                    iconContainer.classList.remove('bg-cgtRed', 'text-white', 'shadow-lg', 'scale-110');
+                    btn.className = "w-12 h-12 rounded-full flex items-center justify-center text-gray-400";
                 }
             });
-            document.getElementById('view-agenda').classList.add('hidden-page');
-            document.getElementById('view-contact').classList.add('hidden-page');
-            if (tab === 'home') {
-                if(currentSite) {
-                    document.getElementById('view-news').classList.remove('hidden-page');
-                    document.getElementById('view-sites').classList.add('hidden-page');
-                } else {
-                    document.getElementById('view-sites').classList.remove('hidden-page');
-                    document.getElementById('view-news').classList.add('hidden-page');
-                }
-            } else if (tab === 'agenda') {
-                document.getElementById('view-sites').classList.add('hidden-page');
-                document.getElementById('view-news').classList.add('hidden-page');
-                document.getElementById('view-agenda').classList.remove('hidden-page');
-            } else if (tab === 'contact') {
-                document.getElementById('view-sites').classList.add('hidden-page');
-                document.getElementById('view-news').classList.add('hidden-page');
-                document.getElementById('view-contact').classList.remove('hidden-page');
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            const targetId = (tab === 'home') ? 'view-sites' : 'view-' + tab;
+            document.getElementById(targetId).classList.add('active');
+            document.getElementById('main-scroll').scrollTop = 0;
+        }
+
+        function toggleSupport(btn) {
+            const frame = document.querySelector('.app-frame');
+            for (let i = 0; i < 15; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + '%';
+                c.style.backgroundColor = ['#E30613', '#FFD700', '#eee'][Math.floor(Math.random()*3)];
+                c.style.animationDuration = (Math.random() + 1) + 's';
+                frame.appendChild(c);
+                setTimeout(() => c.remove(), 2000);
             }
+            btn.classList.add('bg-red-50', 'text-cgtRed');
+            btn.querySelector('.btn-support-text').textContent = "SOUTENU ! (43)";
         }
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').textContent = msg;
-            t.classList.remove('opacity-0', 'translate-y-[-20px]');
-            t.classList.add('translate-y-0');
-            setTimeout(() => {
-                t.classList.add('opacity-0', 'translate-y-[-20px]');
-                t.classList.remove('translate-y-0');
-            }, 3000);
-        }
+        function goHome() { switchTab('home'); }
+        function closeArticle() { document.getElementById('view-article').classList.add('hidden'); }
+        function toggleNotifications() { document.getElementById('notif-dropdown').classList.toggle('hidden'); }
 
-        function launchConfetti() {
-            const colors = ['#E30613', '#FFD700', '#005EB8', '#ffffff'];
-            const container = document.querySelector('.app-frame'); 
-            for (let i = 0; i < 50; i++) {
-                const conf = document.createElement('div');
-                conf.classList.add('confetti');
-                conf.style.left = Math.random() * 100 + '%';
-                conf.style.top = '-10px';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                conf.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
-                container.appendChild(conf);
-                setTimeout(() => conf.remove(), 4000);
-            }
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.fa-bell') && !event.target.closest('button')) {
-                const dropdown = document.getElementById('notif-dropdown');
-                if (!dropdown.classList.contains('hidden-page')) {
-                    toggleNotifications();
-                }
-            }
-        }
-
+        // Lancement immédiat pour éviter le gel
         init();
     </script>
 </body>
