@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CGT TotalEnergies - App Officielle</title>
+    <title>CGT TotalEnergies</title>
     
-    <!-- PRÉCHARGEMENT PRIORITAIRE -->
-    <link rel="preload" as="image" href="logo.jpg">
+    <!-- Préchargement priorité haute -->
+    <link rel="preload" as="image" href="logo.jpg" fetchpriority="high">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -19,34 +19,36 @@
                     fontFamily: { sans: ['Montserrat', 'sans-serif'] },
                     colors: {
                         cgtRed: '#E30613',
-                        cgtDark: '#B71C1C',
                         totalBlue: '#005EB8',
-                        bgLight: '#F0F2F5'
+                        bgLight: '#F3F4F6'
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Optimisations critiques pour la fluidité mobile */
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        /* FIX TOTAL POUR MOBILE */
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+        }
         
-        body {
-            background-color: #111;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+        html, body {
             overflow: hidden;
-            touch-action: manipulation;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            position: fixed;
         }
         
         .app-frame {
             position: relative;
             width: 100%;
-            height: 100%;
-            background: #F0F2F5;
+            height: 100dvh;
+            background: #F3F4F6;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -56,42 +58,54 @@
             .app-frame {
                 width: 375px;
                 height: 90vh;
-                max-height: 850px;
-                border-radius: 40px;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+                border-radius: 30px;
+                margin: 5vh auto;
+                position: relative;
             }
         }
 
-        /* Scroll ultra-réactif */
-        .scroll-container {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 110px;
-            transform: translateZ(0);
-            will-change: scroll-position;
-        }
-
-        .view-container { display: none; width: 100%; }
-        .view-container.active { display: block; }
-
         header {
+            flex: 0 0 auto;
             background: white;
-            padding: 1rem;
-            padding-top: env(safe-area-inset-top, 2.5rem);
-            border-bottom: 1px solid #eee;
+            padding: 12px 16px;
+            padding-top: calc(env(safe-area-inset-top) + 12px);
+            border-bottom: 1px solid #e5e7eb;
             z-index: 50;
         }
 
-        .tab-nav {
-            background: rgba(255, 255, 255, 0.98);
-            border-top: 1px solid #eee;
+        main {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #F3F4F6;
+            padding-bottom: 110px;
+        }
+
+        .view-container { 
+            display: none; 
+            width: 100%;
+        }
+        
+        .view-container.active { 
+            display: block; 
+        }
+
+        nav {
+            flex: 0 0 auto;
+            background: white;
+            padding: 12px 20px;
+            padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
         }
 
         #splash-screen {
             position: fixed;
             inset: 0;
-            z-index: 9999;
+            z-index: 1000;
             background: #E30613;
             display: flex;
             flex-direction: column;
@@ -99,148 +113,135 @@
             justify-content: center;
             transition: opacity 0.4s ease;
         }
-        
-        #splash-screen.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
 
-        .reading-progress-container { position: absolute; top: 0; left: 0; width: 100%; height: 3px; z-index: 100; }
-        .reading-progress-bar { height: 100%; background: #E30613; width: 0%; transition: width 0.1s; }
+        .reading-bar { position: absolute; top: 0; left: 0; height: 3px; background: #E30613; width: 0%; z-index: 100; }
         
-        .article-content p { margin-bottom: 1rem; line-height: 1.6; }
-        .article-content h3 { font-weight: 700; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111; }
-
         .confetti {
             position: absolute;
-            width: 6px;
-            height: 6px;
-            z-index: 1000;
-            pointer-events: none;
+            width: 5px; height: 5px;
+            z-index: 1001; pointer-events: none;
             animation: fall 2s linear forwards;
         }
-        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+        @keyframes fall { to { transform: translateY(100dvh) rotate(360deg); opacity: 0; } }
+        
+        .article-content p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
+        .article-content h3 { font-weight: 700; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111; }
     </style>
 </head>
 <body>
 
-    <!-- ÉCRAN DE CHARGEMENT -->
     <div id="splash-screen">
         <div class="w-32 h-32 mb-6">
-            <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full border-2 border-white/20 shadow-2xl" decoding="async" onerror="this.src='https://via.placeholder.com/200?text=CGT'">
+            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain rounded-full shadow-2xl border-2 border-white/20" decoding="async">
         </div>
-        <div class="w-12 h-1 bg-white/20 rounded-full overflow-hidden">
+        <div class="w-16 h-1 bg-white/20 rounded-full overflow-hidden">
             <div class="h-full bg-white w-full animate-pulse"></div>
         </div>
     </div>
 
     <div class="app-frame font-sans">
-        <!-- Header Fixe -->
+        
         <header>
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3" onclick="goHome()">
                     <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white">
-                        <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" decoding="async" onerror="this.src='https://via.placeholder.com/100?text=CGT'">
+                        <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" decoding="async">
                     </div>
                     <div>
-                        <h1 class="font-black text-sm leading-none">TotalEnergies</h1>
-                        <p class="text-[9px] text-green-600 font-bold uppercase mt-1 tracking-wider">● Connecté</p>
+                        <h1 class="font-black text-sm leading-none text-gray-900">TotalEnergies</h1>
+                        <p class="text-[9px] text-green-600 font-bold uppercase mt-1 tracking-tighter">● Connecté</p>
                     </div>
                 </div>
-                <button onclick="switchTab('contact')" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center relative border border-gray-100 active:scale-90 transition">
-                    <i class="fas fa-bell text-gray-400"></i>
-                    <span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-cgtRed rounded-full"></span>
+                <button onclick="switchTab('contact')" class="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100">
+                    <i class="fas fa-bell text-gray-400 text-sm"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Zone de Contenu -->
-        <div class="scroll-container" id="main-scroll">
+        <main id="main-scroll">
             
-            <!-- VUE ACCUEIL -->
-            <div id="view-sites" class="view-container active p-5">
-                <div class="flex justify-between items-end mb-6">
+            <!-- VUE 1 : ACCUEIL -->
+            <div id="view-sites" class="view-container active p-4">
+                <div class="flex justify-between items-end mb-5">
                     <h2 class="text-2xl font-black text-gray-800">Nos Sites</h2>
-                    <span class="text-[9px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100" id="sites-count">10 Sites</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase" id="sites-count">8 Sites</span>
                 </div>
                 
-                <!-- Widgets -->
-                <div class="grid grid-cols-3 gap-3 mb-8">
-                    <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
+                <div class="grid grid-cols-3 gap-2 mb-6">
+                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-white">
                         <i class="fas fa-cloud-sun text-yellow-500 mb-1"></i>
                         <div class="text-[10px] font-black">14°C</div>
                     </div>
-                    <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
+                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-white">
                         <i class="fas fa-car text-blue-500 mb-1"></i>
                         <div class="text-[10px] font-black">Fluide</div>
                     </div>
-                    <div class="bg-white p-3 rounded-2xl border border-gray-50 text-center shadow-sm">
+                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm border border-white">
                         <i class="fas fa-leaf text-green-500 mb-1"></i>
                         <div class="text-[10px] font-black">Bon</div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4" id="sites-grid"></div>
+                <div class="grid grid-cols-2 gap-3" id="sites-grid"></div>
             </div>
 
-            <!-- VUE ACTUALITÉS -->
+            <!-- VUE 2 : NEWS SITE -->
             <div id="view-news" class="view-container">
-                <div class="relative h-56 w-full">
-                    <img src="" id="site-hero-img" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'">
+                <div class="relative h-56 w-full overflow-hidden">
+                    <img src="" id="site-hero-img" class="w-full h-full object-cover" decoding="async">
                     <div class="absolute inset-0 bg-black/40"></div>
-                    <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center"><i class="fas fa-arrow-left"></i></button>
-                    <div class="absolute bottom-4 left-5">
+                    <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-black/30 text-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-arrow-left text-xs"></i>
+                    </button>
+                    <div class="absolute bottom-4 left-4 right-4">
                         <h2 class="text-white text-2xl font-black leading-none" id="news-site-title">Site</h2>
-                        <p class="text-white/70 text-[10px] font-bold uppercase mt-1">Section Syndicale</p>
+                        <p class="text-white/60 text-[10px] font-bold uppercase mt-1">Section Syndicale</p>
                     </div>
                 </div>
-                <div class="p-5">
-                    <div id="news-feed" class="space-y-4"></div>
-                </div>
+                <div class="p-4" id="news-feed"></div>
             </div>
 
-            <!-- VUE AGENDA -->
-            <div id="view-agenda" class="view-container p-5">
-                <h2 class="text-2xl font-black mb-6">Calendrier</h2>
-                <div id="agenda-list" class="space-y-4"></div>
+            <!-- VUE 3 : AGENDA -->
+            <div id="view-agenda" class="view-container p-4">
+                <h2 class="text-2xl font-black mb-6">Calendrier Social</h2>
+                <div id="agenda-list" class="space-y-3"></div>
             </div>
 
-            <!-- VUE CONTACT -->
-            <div id="view-contact" class="view-container p-5">
-                <div class="bg-gray-900 p-8 rounded-[30px] text-white text-center mb-8">
+            <!-- VUE 4 : CONTACT -->
+            <div id="view-contact" class="view-container p-4">
+                <div class="bg-gray-900 p-8 rounded-[30px] text-white text-center mb-6">
                     <h2 class="text-xl font-black mb-2">Besoin d'aide ?</h2>
-                    <p class="text-xs text-gray-400">Vos élus sont à votre écoute.</p>
+                    <p class="text-xs text-gray-400 font-medium">Vos délégués vous répondent directement.</p>
                 </div>
-                <div class="space-y-4">
-                    <select id="contact-site-select" class="w-full bg-white p-4 rounded-xl border border-gray-200 font-bold outline-none"></select>
+                <div class="space-y-3">
+                    <select id="contact-site-select" class="w-full bg-white p-4 rounded-xl border border-gray-200 font-bold outline-none text-sm h-14"></select>
                     <a href="mailto:Jad.zorgui07@gmail.com" class="block w-full bg-cgtRed text-white text-center py-4 rounded-xl font-bold shadow-lg shadow-red-500/20">EMAIL CGT</a>
-                    <a href="https://wa.me/33788408004" target="_blank" class="block w-full bg-white border border-gray-200 text-center py-4 rounded-xl font-bold text-[#25D366]">WHATSAPP</a>
+                    <a href="https://wa.me/33788408004" target="_blank" class="block w-full bg-white border border-gray-100 text-center py-4 rounded-xl font-bold text-[#25D366]">WHATSAPP</a>
                 </div>
             </div>
-        </div>
+        </main>
 
-        <!-- Navigation Fixe en bas -->
-        <nav class="absolute bottom-6 left-6 right-6 tab-nav rounded-full p-2 flex justify-around items-center shadow-2xl z-[100]">
-            <button onclick="switchTab('home')" id="btn-home" class="w-12 h-12 rounded-full flex items-center justify-center transition-all bg-cgtRed text-white shadow-lg"><i class="fas fa-home"></i></button>
-            <button onclick="switchTab('agenda')" id="btn-agenda" class="w-12 h-12 rounded-full flex items-center justify-center transition-all text-gray-400"><i class="fas fa-calendar-alt"></i></button>
-            <button onclick="switchTab('contact')" id="btn-contact" class="w-12 h-12 rounded-full flex items-center justify-center transition-all text-gray-400"><i class="fas fa-comment-dots"></i></button>
+        <nav>
+            <button onclick="switchTab('home')" id="btn-home" class="w-12 h-12 rounded-full flex items-center justify-center bg-cgtRed text-white shadow-lg transition-transform active:scale-90"><i class="fas fa-home"></i></button>
+            <button onclick="switchTab('agenda')" id="btn-agenda" class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400 transition-transform active:scale-90"><i class="fas fa-calendar-alt"></i></button>
+            <button onclick="switchTab('contact')" id="btn-contact" class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400 transition-transform active:scale-90"><i class="fas fa-comment-dots"></i></button>
         </nav>
 
-        <!-- Overlay Article -->
-        <div id="view-article" class="hidden absolute inset-0 bg-white z-[500] overflow-y-auto">
-            <div class="reading-progress-container"><div class="reading-progress-bar" id="reading-progress"></div></div>
+        <!-- OVERLAY ARTICLE -->
+        <div id="view-article" class="hidden absolute inset-0 bg-white z-[200] overflow-y-auto">
+            <div class="reading-bar" id="reading-progress"></div>
             <div class="relative h-64">
-                <img id="article-img" src="" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800'">
-                <button onclick="closeArticle()" class="absolute top-6 right-6 w-10 h-10 bg-black/30 text-white rounded-full flex items-center justify-center backdrop-blur-md"><i class="fas fa-times"></i></button>
+                <img id="article-img" src="" class="w-full h-full object-cover" decoding="async">
+                <button onclick="closeArticle()" class="absolute top-6 right-6 w-10 h-10 bg-black/30 text-white rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="p-6">
-                <span id="article-tag" class="text-[9px] font-black text-cgtRed uppercase bg-red-50 px-2 py-1 rounded">ACTU</span>
+            <div class="p-5">
+                <span id="article-tag" class="text-[10px] font-black text-cgtRed uppercase bg-red-50 px-2 py-1 rounded">INFOS</span>
                 <h1 id="article-title" class="text-2xl font-black mt-3 leading-tight text-gray-900">Titre</h1>
-                <p id="article-author" class="text-xs text-gray-400 mt-2 font-bold italic">Par Auteur</p>
-                <div id="article-body" class="article-content mt-6 text-gray-700 leading-relaxed text-sm"></div>
-                <div class="mt-10 mb-20 text-center">
+                <p id="article-author" class="text-xs text-gray-400 mt-2 font-bold italic">Auteur</p>
+                <div id="article-body" class="mt-6 text-gray-700 leading-relaxed text-sm article-content"></div>
+                <div class="mt-10 mb-20">
                     <button onclick="toggleSupport(this)" class="w-full py-4 bg-gray-50 border border-gray-100 rounded-xl font-bold text-gray-500 active:bg-red-50 active:text-cgtRed transition-colors">
-                         <span class="btn-support-text">SOUTENIR (42)</span>
+                        <i class="far fa-hand-rock mr-2"></i> <span class="btn-text">SOUTENIR (42)</span>
                     </button>
                 </div>
             </div>
@@ -248,8 +249,7 @@
     </div>
 
     <script>
-        // Données triées A-Z
-        const sites = [
+        const rawSites = [
             { id: 'carling', name: 'Carling', region: 'Est', img: 'carling.jpg' },
             { id: 'donges', name: 'Donges', region: 'St-Nazaire', img: 'donges.jpg' },
             { id: 'feyzin', name: 'Feyzin', region: 'Lyon', img: 'feyzin.jpg' },
@@ -257,83 +257,95 @@
             { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', img: 'grandpuits.jpg' },
             { id: 'lamede', name: 'La Mède', region: 'Provence', img: 'lamede.jpg' },
             { id: 'normandie', name: 'Normandie', region: 'Le Havre', img: 'normandie.jpg' },
-            { id: 'oudalle', name: 'Oudalle', region: 'Seine-Maritime', img: 'oudalle.jpg' }
+            { id: 'oudalle', name: 'Oudalle', region: 'Le Havre', img: 'oudalle.jpg' }
         ];
 
-        // Articles avec images thématiques Unsplash pour garantir le chargement
+        const sites = rawSites.sort((a, b) => a.name.localeCompare(b.name));
+
+        const agendaEvents = [
+            { day: "12", month: "Fév", title: "Réunion NAO #4", loc: "Siège Paris" },
+            { day: "15", month: "Fév", title: "AG du Personnel", loc: "Local CGT / Cantine" },
+            { day: "18", month: "Fév", title: "Commission CSSCT", loc: "Salle de réunion A" },
+            { day: "20", month: "Fév", title: "Permanence Juridique", loc: "Bureau CGT" },
+            { day: "25", month: "Fév", title: "Comité Social Économique", loc: "Salle Plénière" }
+        ];
+
         const siteContent = {
             'carling': [
-                { title: "Avenir du site : Inquiétudes stratégiques", tag: "Stratégie", author: "Karim", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800", content: "<p>Face aux rumeurs de restructuration de la zone pétrochimique, la CGT demande une vision claire à 10 ans pour l'emploi local.</p><h3>Nos exigences</h3><p>Maintien des investissements sur les unités de vapocraquage et garanties sur les effectifs de maintenance.</p>" },
-                { title: "Dotation EPI d'été : Enfin du nouveau ?", tag: "Santé", author: "Fred", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800", content: "<p>Après plusieurs mois de pression en CSSCT, la direction accepte enfin de tester de nouvelles tenues respirantes pour les opérateurs de jour.</p>" }
+                { title: "Avenir du site : Emplois locaux", tag: "Stratégie", author: "Karim", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600", content: "<p>La CGT demande des garanties écrites sur le maintien des postes de maintenance pour les 10 prochaines années.</p><h3>Vapocraquage</h3><p>Les rumeurs de restructuration inquiètent les équipes. Nous exigeons une réunion extraordinaire.</p>" },
+                { title: "Dotation EPI d'été : Enfin du nouveau ?", tag: "Santé", author: "Fred", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600", content: "<p>Après des mois de bataille en CSSCT, les nouvelles tenues respirantes arrivent enfin en test.</p>" }
             ],
             'donges': [
-                { title: "NAO locales : Rapport de force nécessaire", tag: "Social", author: "Fred", image: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=80&w=800", content: "<p>Les dernières propositions de la direction pour les primes de site sont insultantes. La CGT appelle à un rassemblement devant le portail à 14h.</p>" }
+                { title: "NAO locales : Rapport de force nécessaire", tag: "Social", author: "Fred", image: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?w=600", content: "<p>Les propositions de primes de site sont déconnectées de la réalité. Rassemblement demain à 14h devant le portail.</p>" }
             ],
             'feyzin': [
-                { title: "Incident Unité 12 : Alerte DGI déposée", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1516387933901-8266e7d6c817?q=80&w=800", content: "<p>L'incident survenu sur la torche Sud hier démontre une fois de plus la vétusté des vannes. Nous avons déposé un Danger Grave et Imminent.</p>" }
+                { title: "Incident Unité 12 : Alerte DGI déposée", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1516387933901-8266e7d6c817?w=600", content: "<p>L'incident survenu sur la torche Sud hier démontre la vétusté des vannes. Nous avons déposé un Danger Grave et Imminent.</p>" }
             ],
             'flandres': [
-                { title: "Activités Plateforme : Point sur les effectifs", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?q=80&w=800", content: "<p>La montée en charge de la plateforme logistique ne doit pas se faire au détriment de la sécurité. Nous exigeons 5 embauches immédiates en CDI.</p>" }
+                { title: "Plateforme logistique : Point effectifs", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=600", content: "<p>La montée en charge ne doit pas se faire au détriment de la sécurité. Nous exigeons 5 embauches immédiates.</p>" }
             ],
             'grandpuits': [
-                { title: "Transition énergétique : Le compte n'y est pas", tag: "Avenir", author: "Louis Marc", image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=800", content: "<p>Le projet solaire avance, mais les solutions de reclassement pour nos camarades techniciens restent floues. La CGT veille au grain.</p>" }
+                { title: "Transition énergétique : Le compte n'y est pas", tag: "Avenir", author: "Louis Marc", image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600", content: "<p>Le projet solaire avance, mais les solutions de reclassement pour nos camarades techniciens restent floues.</p>" }
             ],
             'lamede': [
-                { title: "Grand Arrêt 2026 : Vigilance sous-traitance", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=800", content: "<p>L'afflux massif de sous-traitants pour le Grand Arrêt nécessite un contrôle strict des badges et des habilitations de sécurité.</p>" },
-                { title: "Planning 5x8 : Refusons la flexibilité", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800", content: "<p>La direction tente d'imposer des bascules jour/nuit plus rapprochées. C'est non ! Protégeons notre santé et nos familles.</p>" }
+                { title: "Grand Arrêt : Sécurité prioritaire", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600", content: "<p>Vigilance sur la sous-traitance durant les travaux. Chaque intervenant doit être formé et badgé correctement.</p>" },
+                { title: "Planning 5x8 : Refusons la flexibilité", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600", content: "<p>La direction veut modifier les cycles de repos. Pour notre santé et nos familles, c'est NON.</p>" }
             ],
             'normandie': [
-                { title: "Blocage expéditions : La force du nombre", tag: "Grève", author: "Olivier", image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?q=80&w=800", content: "<p>Depuis ce matin 06h, aucun camion ne sort de la raffinerie. La direction commence enfin à nous écouter. Restons groupés !</p>" }
+                { title: "Blocage des expéditions : La force du nombre", tag: "Grève", author: "Olivier", image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?w=600", content: "<p>Depuis ce matin, aucun camion ne sort. La direction commence enfin à nous écouter. Restons groupés.</p>" }
             ],
             'oudalle': [
-                { title: "Sécurité Chimie : Investissements attendus", tag: "Sécurité", author: "Louis Marc", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800", content: "<p>Oudalle doit rester un site d'excellence. Cela passe par le renouvellement immédiat des pompes haute pression de la zone A.</p>" }
+                { title: "Sécurité Chimie : Investissements attendus", tag: "Sécurité", author: "Louis Marc", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600", content: "<p>Focus sur la rénovation des équipements de protection collective. La sécurité n'est pas une variable d'ajustement.</p>" }
             ],
             'default': [
-                { title: "Mobilisation Nationale NAO 2026", tag: "National", author: "Olivier", image: "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=800", content: "<p>La CGT TotalEnergies appelle à une grève nationale mercredi prochain. Pour nos salaires, pour nos familles, soyons tous dans la rue.</p>" }
+                { title: "Mobilisation Nationale NAO 2026", tag: "National", author: "Olivier", image: "nao.jpg", content: "<p>La CGT TotalEnergies appelle à une grève nationale mercredi prochain. Mobilisons-nous pour nos salaires.</p>" }
             ]
         };
 
         function init() {
             const grid = document.getElementById('sites-grid');
             const select = document.getElementById('contact-site-select');
+            const agendaList = document.getElementById('agenda-list');
             
-            sites.forEach((s, idx) => {
+            sites.forEach(s => {
                 grid.innerHTML += `
-                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50 active:bg-gray-50 transition" onclick="selectSite('${s.id}')">
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-50 active:bg-gray-100 transition-colors" onclick="selectSite('${s.id}')">
                         <div class="h-24 bg-gray-100 overflow-hidden">
-                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" decoding="async" loading="${idx < 4 ? 'eager' : 'lazy'}" onerror="this.src='https://via.placeholder.com/200?text=Site'">
+                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" decoding="async" loading="lazy" onerror="this.src='https://via.placeholder.com/200?text=Site'">
                         </div>
                         <div class="p-3">
-                            <h3 class="font-black text-xs leading-none">${s.name}</h3>
+                            <h3 class="font-black text-xs leading-none text-gray-900">${s.name}</h3>
                             <p class="text-[8px] text-gray-400 font-bold uppercase mt-1 tracking-wider">${s.region}</p>
                         </div>
                     </div>`;
                 select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
             });
 
+            agendaList.innerHTML = agendaEvents.map(e => `
+                <div class="bg-white p-4 rounded-xl border border-gray-50 shadow-sm flex items-center gap-4">
+                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-cgtRed font-black flex-shrink-0">
+                        <div class="text-center">
+                            <div class="leading-none text-base">${e.day}</div>
+                            <div class="text-[7px] uppercase font-bold">${e.month}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900 leading-tight">${e.title}</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5"><i class="fas fa-map-marker-alt mr-1 text-[8px]"></i>${e.loc}</p>
+                    </div>
+                </div>
+            `).join('');
+
             document.getElementById('sites-count').textContent = sites.length + " Sites";
 
-            const agenda = document.getElementById('agenda-list');
-            agenda.innerHTML = `
-                <div class="bg-white p-4 rounded-xl border border-gray-50 shadow-sm flex items-center gap-4">
-                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-cgtRed font-black text-sm">12</div>
-                    <div><p class="text-sm font-bold">Réunion NAO #4</p><p class="text-[10px] text-gray-400">Siège Paris</p></div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-50 shadow-sm flex items-center gap-4">
-                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-cgtRed font-black text-sm">15</div>
-                    <div><p class="text-sm font-bold">AG Personnel</p><p class="text-[10px] text-gray-400">Local CGT</p></div>
-                </div>`;
-
-            // Sortie rapide du splash screen
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 if (splash) {
-                    splash.classList.add('fade-out');
-                    setTimeout(() => splash.style.display = 'none', 500);
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.style.display = 'none', 400);
                 }
-            }, 600);
+            }, 800);
 
-            // Scroll bar listener
             document.getElementById('view-article').addEventListener('scroll', function() {
                 const progress = (this.scrollTop / (this.scrollHeight - this.clientHeight)) * 100;
                 document.getElementById('reading-progress').style.width = progress + '%';
@@ -357,14 +369,14 @@
             const data = siteContent[id] || siteContent['default'];
             data.forEach(n => {
                 feed.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm flex gap-4 active:bg-gray-100 transition" onclick="openArticle('${id}', '${n.title.replace(/'/g, "\\'")}')">
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4 active:bg-gray-50 mb-3" onclick="openArticle('${id}', '${n.title.replace(/'/g, "\\'")}')">
                         <div class="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                            <img src="${n.image}" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://via.placeholder.com/100?text=Actu'">
+                            <img src="${n.image}" class="w-full h-full object-cover" decoding="async" onerror="this.src='https://via.placeholder.com/100?text=Info'">
                         </div>
                         <div class="flex-1">
-                            <span class="text-[7px] font-black text-cgtRed uppercase">${n.tag}</span>
-                            <h4 class="font-bold text-xs leading-snug mt-1">${n.title}</h4>
-                            <p class="text-[8px] text-gray-400 mt-1">Par ${n.author}</p>
+                            <span class="text-[7px] font-black text-cgtRed uppercase tracking-wider">${n.tag}</span>
+                            <h4 class="font-bold text-xs leading-snug mt-1 text-gray-900">${n.title}</h4>
+                            <p class="text-[9px] text-gray-400 mt-1">Par ${n.author}</p>
                         </div>
                     </div>`;
             });
@@ -386,9 +398,9 @@
             ['home', 'agenda', 'contact'].forEach(t => {
                 const btn = document.getElementById(`btn-${t}`);
                 if (t === tab) {
-                    btn.className = "w-12 h-12 rounded-full flex items-center justify-center bg-cgtRed text-white shadow-lg";
+                    btn.className = "w-12 h-12 rounded-full flex items-center justify-center bg-cgtRed text-white shadow-lg transition-transform scale-110";
                 } else {
-                    btn.className = "w-12 h-12 rounded-full flex items-center justify-center text-gray-400";
+                    btn.className = "w-12 h-12 rounded-full flex items-center justify-center text-gray-400 transition-transform scale-100";
                 }
             });
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
@@ -399,7 +411,7 @@
 
         function toggleSupport(btn) {
             const frame = document.querySelector('.app-frame');
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 20; i++) {
                 const c = document.createElement('div');
                 c.className = 'confetti';
                 c.style.left = Math.random() * 100 + '%';
@@ -408,14 +420,13 @@
                 frame.appendChild(c);
                 setTimeout(() => c.remove(), 2000);
             }
-            btn.classList.add('bg-red-50', 'text-cgtRed');
-            btn.querySelector('.btn-support-text').textContent = "SOUTENU ! (43)";
+            btn.classList.add('bg-red-50', 'text-cgtRed', 'border-cgtRed');
+            btn.querySelector('.btn-text').textContent = "SOUTENU ! (43)";
         }
 
         function goHome() { switchTab('home'); }
         function closeArticle() { document.getElementById('view-article').classList.add('hidden'); }
 
-        // Initialisation immédiate
         init();
     </script>
 </body>
