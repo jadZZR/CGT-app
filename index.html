@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CGT TotalEnergies</title>
     
-    <!-- Priorité maximale pour le logo -->
+    <!-- Préchargement priorité haute -->
     <link rel="preload" as="image" href="logo.jpg" fetchpriority="high">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,11 +27,8 @@
         }
     </script>
     <style>
-        /* Optimisations pour un affichage instantané et fluide sur mobile */
-        * { 
-            -webkit-tap-highlight-color: transparent; 
-            box-sizing: border-box;
-        }
+        /* Optimisations mobiles */
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         
         html, body {
             overflow: hidden;
@@ -104,22 +101,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.2s ease-out;
+            transition: opacity 0.3s ease-out;
         }
 
-        .image-placeholder {
-            background-color: #e5e7eb;
-            position: relative;
-            overflow: hidden;
-        }
-
-        img {
-            transition: opacity 0.2s ease-in;
-            opacity: 0;
-        }
-        img.loaded {
-            opacity: 1;
-        }
+        .img-loading { background-color: #e5e7eb; transition: opacity 0.3s; }
+        img { opacity: 0; transition: opacity 0.3s ease-in; }
+        img.loaded { opacity: 1; }
 
         .article-content p { margin-bottom: 1rem; line-height: 1.6; color: #444; }
         .article-content h3 { font-weight: 700; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111; }
@@ -138,7 +125,7 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="w-32 h-32 mb-6">
-            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain rounded-full border-2 border-white/20 shadow-2xl" onload="this.classList.add('loaded')">
+            <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full border-2 border-white/20 shadow-2xl" onload="this.classList.add('loaded')">
         </div>
         <div class="w-12 h-1 bg-white/20 rounded-full overflow-hidden">
             <div class="h-full bg-white w-full animate-pulse"></div>
@@ -168,10 +155,9 @@
             <div id="view-sites" class="view-container active p-4">
                 <div class="flex justify-between items-end mb-5">
                     <h2 class="text-2xl font-black text-gray-800">Nos Sites</h2>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase" id="sites-count">0 Sites</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase" id="sites-count">8 Sites</span>
                 </div>
                 
-                <!-- Widgets -->
                 <div class="grid grid-cols-3 gap-2 mb-6 text-center">
                     <div class="bg-white p-3 rounded-2xl shadow-sm border border-white">
                         <i class="fas fa-cloud-sun text-yellow-500 mb-1"></i>
@@ -192,12 +178,10 @@
 
             <!-- VUE 2 : NEWS SITE -->
             <div id="view-news" class="view-container">
-                <div class="relative h-56 w-full overflow-hidden image-placeholder">
+                <div class="relative h-56 w-full overflow-hidden img-loading">
                     <img src="" id="site-hero-img" class="w-full h-full object-cover" onload="this.classList.add('loaded')">
                     <div class="absolute inset-0 bg-black/40"></div>
-                    <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-black/30 text-white rounded-full flex items-center justify-center">
-                        <i class="fas fa-arrow-left text-xs"></i>
-                    </button>
+                    <button onclick="goHome()" class="absolute top-4 left-4 w-8 h-8 bg-black/30 text-white rounded-full flex items-center justify-center"><i class="fas fa-arrow-left text-xs"></i></button>
                     <div class="absolute bottom-4 left-4">
                         <h2 class="text-white text-2xl font-black leading-none" id="news-site-title">Site</h2>
                         <p class="text-white/60 text-[10px] font-bold uppercase mt-1">Section Syndicale</p>
@@ -234,7 +218,7 @@
 
         <!-- Overlay Article -->
         <div id="view-article" class="hidden absolute inset-0 bg-white z-[200] overflow-y-auto">
-            <div class="relative h-64 image-placeholder">
+            <div class="relative h-64 img-loading">
                 <img id="article-img" src="" class="w-full h-full object-cover" onload="this.classList.add('loaded')">
                 <button onclick="closeArticle()" class="absolute top-6 right-6 w-10 h-10 bg-black/30 text-white rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
@@ -253,15 +237,17 @@
     </div>
 
     <script>
+        // Données avec images de Fallback Unsplash pour la démo instantanée
+        // Le onerror basculera sur une image web si le fichier local n'est pas trouvé
         const rawSites = [
-            { id: 'carling', name: 'Carling', region: 'Est', img: 'carling.jpg' },
-            { id: 'donges', name: 'Donges', region: 'St-Nazaire', img: 'donges.jpg' },
-            { id: 'feyzin', name: 'Feyzin', region: 'Lyon', img: 'feyzin.jpg' },
-            { id: 'flandres', name: 'Flandres', region: 'Nord', img: 'flandres.jpg' },
-            { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', img: 'grandpuits.jpg' },
-            { id: 'lamede', name: 'La Mède', region: 'Provence', img: 'lamede.jpg' },
-            { id: 'normandie', name: 'Normandie', region: 'Le Havre', img: 'normandie.jpg' },
-            { id: 'oudalle', name: 'Oudalle', region: 'Le Havre', img: 'oudalle.jpg' }
+            { id: 'carling', name: 'Carling', region: 'Est', img: 'carling.jpg', backup: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=40&w=400' },
+            { id: 'donges', name: 'Donges', region: 'St-Nazaire', img: 'donges.jpg', backup: 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=40&w=400' },
+            { id: 'feyzin', name: 'Feyzin', region: 'Lyon', img: 'feyzin.jpg', backup: 'https://images.unsplash.com/photo-1611270629569-8b357cb88da9?q=40&w=400' },
+            { id: 'flandres', name: 'Flandres', region: 'Nord', img: 'flandres.jpg', backup: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=40&w=400' },
+            { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', img: 'grandpuits.jpg', backup: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?q=40&w=400' },
+            { id: 'lamede', name: 'La Mède', region: 'Provence', img: 'lamede.jpg', backup: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=40&w=400' },
+            { id: 'normandie', name: 'Normandie', region: 'Le Havre', img: 'normandie.jpg', backup: 'https://images.unsplash.com/photo-1527018601619-a508a2be00cd?q=40&w=400' },
+            { id: 'oudalle', name: 'Oudalle', region: 'Le Havre', img: 'oudalle.jpg', backup: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=40&w=400' }
         ];
 
         const sites = rawSites.sort((a, b) => a.name.localeCompare(b.name));
@@ -274,35 +260,36 @@
             { day: "25", month: "Fév", title: "Comité Social Économique", loc: "Salle Plénière" }
         ];
 
+        // Articles avec images optimisées (q=40&w=400)
         const siteContent = {
             'carling': [
-                { title: "Avenir du site : Emplois locaux", tag: "Stratégie", author: "Karim", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=60&w=600", content: "<p>Défense des postes de maintenance sur les unités de vapocraquage.</p><h3>Vapocraquage</h3><p>Les rumeurs de restructuration inquiètent. Nous exigeons une vision claire à 10 ans.</p>" },
-                { title: "Dotation EPI d'été", tag: "Santé", author: "Fred", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=60&w=600", content: "<p>Demande de tenues adaptées aux fortes chaleurs pour les opérateurs terrain.</p>" }
+                { title: "Avenir du site : Emplois locaux", tag: "Stratégie", author: "Karim", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=40&w=400&auto=format", content: "<p>Défense des postes de maintenance sur les unités de vapocraquage.</p><h3>Vapocraquage</h3><p>Les rumeurs de restructuration inquiètent. Nous exigeons une vision claire à 10 ans.</p>" },
+                { title: "Dotation EPI d'été : Enfin du nouveau ?", tag: "Santé", author: "Fred", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=40&w=400&auto=format", content: "<p>Après des mois de bataille en CSSCT, la direction accepte enfin de tester de nouvelles tenues respirantes pour les opérateurs de jour.</p>" }
             ],
             'donges': [
-                { title: "NAO locales : Rapport de force", tag: "Social", author: "Fred", image: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=60&w=600", content: "<p>Les propositions de primes de site sont insuffisantes. Mobilisons-nous devant le portail à 14h.</p>" }
+                { title: "NAO locales : Rapport de force nécessaire", tag: "Social", author: "Fred", image: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=40&w=400&auto=format", content: "<p>Les propositions de primes de site sont insuffisantes. La CGT appelle à un rassemblement devant le portail à 14h.</p>" }
             ],
             'feyzin': [
-                { title: "Incident Unité 12 : Alerte DGI", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1516387933901-8266e7d6c817?q=60&w=600", content: "<p>Dépôt d'un Danger Grave et Imminent suite à l'incident survenu hier sur la torche Sud.</p>" }
+                { title: "Incident Unité 12 : Alerte DGI déposée", tag: "Alerte", author: "Louis Marc", image: "https://images.unsplash.com/photo-1516387933901-8266e7d6c817?q=40&w=400&auto=format", content: "<p>L'incident survenu sur la torche Sud hier démontre une fois de plus la vétusté des vannes. Nous avons déposé un Danger Grave et Imminent.</p>" }
             ],
             'flandres': [
-                { title: "Plateforme logistique : Effectifs", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=60&w=600", content: "<p>La charge de travail augmente, les bras manquent. Embauches immédiates exigées.</p>" }
+                { title: "Plateforme logistique : Effectifs", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=40&w=400&auto=format", content: "<p>La charge de travail augmente, les bras manquent. Embauches immédiates exigées par la CGT.</p>" }
             ],
             'grandpuits': [
-                { title: "Transition : Le compte n'y est pas", tag: "Avenir", author: "Louis Marc", image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=60&w=600", content: "<p>Projet solaire : nous exigeons des garanties concrètes pour le reclassement des techniciens.</p>" }
+                { title: "Transition énergétique : Le compte n'y est pas", tag: "Avenir", author: "Louis Marc", image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=40&w=400&auto=format", content: "<p>Le projet solaire avance, mais les solutions de reclassement pour nos camarades techniciens restent floues. La CGT veille au grain.</p>" }
             ],
             'lamede': [
-                { title: "Grand Arrêt : Sécurité", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=60&w=600", content: "<p>Contrôle strict des sous-traitants durant les travaux. Pas d'impasse sur la sécurité.</p>" },
-                { title: "Planning 5x8 : Refus flexibilité", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=60&w=600", content: "<p>La direction veut modifier les cycles de repos. Nous disons NON pour préserver notre santé.</p>" }
+                { title: "Grand Arrêt : Sécurité prioritaire", tag: "Urgent", author: "Fred", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=40&w=400&auto=format", content: "<p>Vigilance sur la sous-traitance durant les travaux. Chaque intervenant doit être formé et badgé correctement.</p>" },
+                { title: "Planning 5x8 : Refusons la flexibilité", tag: "Social", author: "Karim", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=40&w=400&auto=format", content: "<p>La direction veut modifier les cycles de repos. Nous disons NON pour préserver notre santé.</p>" }
             ],
             'normandie': [
-                { title: "Blocage expéditions : La force", tag: "Grève", author: "Olivier", image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?q=60&w=600", content: "<p>Aucun produit ne sort ce matin. La direction doit enfin ouvrir de vraies négociations.</p>" }
+                { title: "Blocage expéditions : La force du nombre", tag: "Grève", author: "Olivier", image: "https://images.unsplash.com/photo-1527018601619-a508a2be00cd?q=40&w=400&auto=format", content: "<p>Depuis ce matin 06h, aucun camion ne sort de la raffinerie. La direction commence enfin à nous écouter. Restons groupés !</p>" }
             ],
             'oudalle': [
-                { title: "Sécurité Chimie : Investissements", tag: "Sécurité", author: "Louis Marc", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=60&w=600", content: "<p>Focus sur la rénovation des pompes haute pression. La sécurité n'est pas négociable.</p>" }
+                { title: "Sécurité Chimie : Investissements attendus", tag: "Sécurité", author: "Louis Marc", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=40&w=400&auto=format", content: "<p>Focus sur la rénovation des pompes haute pression. La sécurité n'est pas négociable.</p>" }
             ],
             'default': [
-                { title: "Mobilisation Nationale NAO 2026", tag: "National", author: "Olivier", image: "nao.jpg", content: "<p>La CGT appelle à une grève nationale mercredi prochain. Mobilisons-nous pour nos salaires.</p>" }
+                { title: "Mobilisation Nationale NAO 2026", tag: "National", author: "Olivier", image: "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=40&w=400&auto=format", content: "<p>La CGT TotalEnergies appelle à une grève nationale mercredi prochain. Mobilisons-nous pour nos salaires.</p>" }
             ]
         };
 
@@ -312,10 +299,11 @@
             const agendaList = document.getElementById('agenda-list');
             
             sites.forEach(s => {
+                // Utilisation de onerror pour basculer instantanément sur l'image web si l'image locale manque
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-50 active:bg-gray-100 transition-colors" onclick="selectSite('${s.id}')">
-                        <div class="h-24 image-placeholder">
-                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" decoding="async" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='https://via.placeholder.com/200?text=Site'">
+                        <div class="h-24 img-loading overflow-hidden">
+                            <img src="${s.img}" alt="${s.name}" class="w-full h-full object-cover" decoding="async" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='${s.backup}'">
                         </div>
                         <div class="p-3">
                             <h3 class="font-black text-xs leading-none text-gray-900">${s.name}</h3>
@@ -346,21 +334,19 @@
                 const splash = document.getElementById('splash-screen');
                 if (splash) {
                     splash.style.opacity = '0';
-                    setTimeout(() => splash.style.display = 'none', 400);
+                    setTimeout(() => splash.style.display = 'none', 300);
                 }
-            }, 400);
-
-            document.getElementById('view-article').addEventListener('scroll', function() {
-                const progress = (this.scrollTop / (this.scrollHeight - this.clientHeight)) * 100;
-                document.getElementById('reading-progress').style.width = progress + '%';
-            });
+            }, 600);
         }
 
         function selectSite(id) {
             const site = sites.find(s => s.id === id);
             document.getElementById('news-site-title').textContent = site.name;
             const hero = document.getElementById('site-hero-img');
-            hero.classList.remove('loaded'); hero.src = site.img;
+            hero.classList.remove('loaded'); 
+            hero.src = site.img;
+            // Fallback pour hero image
+            hero.onerror = function() { this.src = site.backup; };
             
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
             document.getElementById('view-news').classList.add('active');
@@ -375,7 +361,7 @@
             data.forEach(n => {
                 feed.innerHTML += `
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4 active:bg-gray-50 mb-3" onclick="openArticle('${id}', '${n.title.replace(/'/g, "\\'")}')">
-                        <div class="w-16 h-16 rounded-xl image-placeholder shrink-0">
+                        <div class="w-16 h-16 rounded-xl img-loading overflow-hidden shrink-0">
                             <img src="${n.image}" class="w-full h-full object-cover" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='https://via.placeholder.com/100?text=Info'">
                         </div>
                         <div class="flex-1">
