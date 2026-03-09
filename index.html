@@ -579,6 +579,7 @@
 
         function switchTab(tab) {
             hapticFeedback();
+            document.getElementById('main-scroll').scrollTo(0, 0);
             ['home', 'agenda', 'tools', 'contact'].forEach(t => document.getElementById(`btn-${t}`).className = (t === tab) ? "nav-item active" : "nav-item inactive");
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
             document.getElementById('main-header').style.display = (tab === 'home') ? 'block' : 'none';
@@ -591,6 +592,7 @@
         function selectSite(id) {
             hapticFeedback();
             currentSiteId = id;
+            document.getElementById('main-scroll').scrollTo(0, 0);
             const site = rawSites.find(s=>s.id===id);
             document.getElementById('news-site-title').textContent = site.name;
             document.getElementById('site-hero-img').src = site.img;
@@ -601,6 +603,7 @@
             renderNews();
         }
         function goHome() { 
+            document.getElementById('main-scroll').scrollTo(0, 0);
             document.querySelectorAll('.view-container').forEach(v=>v.classList.remove('active')); 
             document.getElementById('view-sites').classList.add('active'); 
             document.getElementById('main-header').style.display='block'; 
