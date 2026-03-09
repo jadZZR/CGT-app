@@ -1,17 +1,593 @@
 <!DOCTYPE html>
-<html lang="fr" class="antialiased">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#E30613" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>CGT TotalEnergies</title>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CGT TotalEnergies - Prototype</title>
+    
+    <link rel="preload" as="image" href="logo.jpg" fetchpriority="high">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+                    colors: {
+                        cgtRed: '#E30613',
+                        cgtDarkRed: '#A0000A',
+                        totalBlue: '#005EB8',
+                        bgApp: '#F8FAFC', 
+                        surface: '#FFFFFF'
+                    },
+                    boxShadow: {
+                        'soft': '0 8px 30px rgba(0, 0, 0, 0.04)',
+                        'float': '0 20px 40px rgba(0, 0, 0, 0.08)',
+                        'red-glow': '0 10px 30px rgba(227, 6, 19, 0.25)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards',
+                        'float': 'float 6s ease-in-out infinite alternate',
+                        'shimmer': 'shimmer 2.5s infinite linear',
+                        'story-progress': 'storyProgress 5s linear forwards',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+                        slideUp: { '0%': { opacity: 0, transform: 'translateY(40px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+                        float: { '0%': { transform: 'translateY(0px)' }, '100%': { transform: 'translateY(-20px)' } },
+                        shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
+                        storyProgress: { '0%': { width: '0%' }, '100%': { width: '100%' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        
+        html, body {
+            overflow: hidden; height: 100%; width: 100%; margin: 0; padding: 0;
+            background: linear-gradient(-45deg, #e2e8f0, #ffe4e6, #e0f2fe, #f1f5f9);
+            background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+            position: fixed;
+        }
+        
+        .app-frame {
+            position: relative; width: 100%; height: 100dvh;
+            background: linear-gradient(-45deg, #F8FAFC, #F1F5F9, #FFFFFF, #F8FAFC);
+            background-size: 400% 400%; animation: gradientBG 20s ease infinite;
+            display: flex; flex-direction: column; overflow: hidden; z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            .app-frame {
+                width: 390px; height: 844px; max-height: 92vh; border-radius: 48px;
+                margin: 4vh auto; border: 12px solid #111;
+                box-shadow: 0 0 0 1px #444, 0 40px 80px -20px rgba(0,0,0,0.2), 0 0 120px rgba(227,6,19,0.08);
+            }
+            .app-frame::before {
+                content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+                width: 125px; height: 32px; background-color: #111; border-radius: 24px; z-index: 1001; pointer-events: none;
+            }
+        }
+        
+        .safe-pt { padding-top: calc(env(safe-area-inset-top) + 60px) !important; }
+        .safe-top { top: calc(env(safe-area-inset-top) + 20px) !important; }
+        .safe-pb { padding-bottom: calc(env(safe-area-inset-bottom) + 20px) !important; }
+
+        .glass-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.8); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+        main { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding-bottom: 120px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+
+        .view-container { display: none; width: 100%; }
+        .view-container.active { display: block; animation: fadeIn 0.4s ease-out forwards; }
+
+        nav {
+            position: absolute; bottom: calc(env(safe-area-inset-bottom) + 24px); left: 50%; transform: translateX(-50%);
+            width: 88%; padding: 8px; border-radius: 36px; display: flex; justify-content: space-around; align-items: center;
+            z-index: 100; box-shadow: 0 20px 40px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.8) inset;
+        }
+
+        .nav-item {
+            position: relative; width: 65px; height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 24px; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); gap: 4px;
+        }
+        .nav-item i { font-size: 1.2rem; transition: all 0.3s; }
+        .nav-item span { font-size: 0.55rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0; transform: translateY(8px); transition: all 0.3s; position: absolute; bottom: 6px; }
+        .nav-item.active { color: #E30613; background: rgba(227, 6, 19, 0.06); }
+        .nav-item.active i { transform: translateY(-6px); }
+        .nav-item.active span { opacity: 1; transform: translateY(0); }
+        .nav-item.inactive { color: #94A3B8; }
+
+        #splash-screen {
+            position: absolute; inset: 0; z-index: 1000;
+            background: linear-gradient(135deg, #E30613 0%, #A0000A 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #view-article, #notifications-panel, #modal-simulator, #modal-rights, #modal-dgi, #modal-chatbot, #view-story {
+            position: absolute; inset: 0; z-index: 200; background: #F8FAFC; overflow-y: auto;
+            transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        #view-article.show-modal, #notifications-panel.show-modal, #modal-simulator.show-modal, #modal-rights.show-modal, #modal-dgi.show-modal, #modal-chatbot.show-modal, #view-story.show-modal { transform: translateY(0); }
+        
+        #modal-chatbot { overflow: hidden; display: flex; flex-direction: column; }
+        #view-story { background: #000; overflow: hidden; z-index: 300; }
+
+        .flip-card { background-color: transparent; width: 100%; height: 210px; perspective: 1200px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 28px; overflow: hidden; }
+        .flip-card-back { transform: rotateY(180deg); }
+
+        .brand-header {
+            background: linear-gradient(-45deg, #E30613, #B0000B, #E30613, #8A0008);
+            background-size: 300% 300%; animation: gradientBG 12s ease infinite;
+            border-bottom-left-radius: 44px; border-bottom-right-radius: 44px;
+            box-shadow: 0 10px 40px rgba(227, 6, 19, 0.2); padding-bottom: 2.5rem; position: relative;
+        }
+
+        .story-ring { background: linear-gradient(45deg, #f59e0b, #E30613, #B0000B); padding: 2.5px; border-radius: 50%; display: inline-block; }
+        
+        .chat-bubble-bot { background: white; color: #1f2937; border-radius: 20px; border-bottom-left-radius: 4px; padding: 12px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 85%; font-size: 14px; margin-bottom: 12px; }
+        .chat-bubble-user { background: #005EB8; color: white; border-radius: 20px; border-bottom-right-radius: 4px; padding: 12px 16px; box-shadow: 0 2px 10px rgba(0,94,184,0.2); max-width: 85%; align-self: flex-end; font-size: 14px; margin-bottom: 12px; }
+        
+        .typing-dot { animation: typing 1.4s infinite ease-in-out; width: 6px; height: 6px; border-radius: 50%; background-color: #9ca3af; display: inline-block; margin: 0 2px; }
+
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes typing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-frame font-sans">
+        <!-- Splash Screen -->
+        <div id="splash-screen">
+            <div class="w-32 h-32 mb-8 relative">
+                <div class="absolute inset-0 bg-white/30 rounded-full blur-xl animate-pulse"></div>
+                <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full border-[5px] border-white shadow-2xl relative z-10 bg-white" onload="this.classList.add('loaded')">
+            </div>
+            <div class="text-white font-black text-3xl tracking-tight mb-8 drop-shadow-md">La force syndicale.</div>
+            <div class="w-16 h-1.5 bg-black/20 rounded-full overflow-hidden">
+                <div class="h-full bg-white w-full animate-pulse rounded-full"></div>
+            </div>
+        </div>
+
+        <main id="main-scroll">
+            <!-- HEADER -->
+            <div class="brand-header safe-pt px-6 relative z-10" id="main-header">
+                <div class="flex justify-between items-center mt-2 relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center p-0.5 relative group">
+                            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain rounded-full" onload="this.classList.add('loaded')">
+                            <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+                        </div>
+                        <div class="text-white">
+                            <h1 class="font-bold text-[10px] uppercase tracking-[0.2em] opacity-75 mb-0.5">TotalEnergies</h1>
+                            <h2 class="text-2xl font-black tracking-tight leading-none" id="greeting">Bonjour, Jad</h2>
+                        </div>
+                    </div>
+                    <button onclick="toggleNotifications()" class="relative w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 text-white shadow-sm active:scale-90 transition-all">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span class="absolute top-3 right-3 w-2.5 h-2.5 bg-yellow-400 border-2 border-cgtRed rounded-full shadow-sm"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- VUE 1 : ACCUEIL -->
+            <div id="view-sites" class="view-container active">
+                <!-- TRACTS EXPRESS (STORIES) -->
+                <div class="bg-white pb-5 pt-3 mb-6 rounded-b-[32px] shadow-soft relative z-20 -mt-8">
+                    <div class="px-6 flex justify-between items-center mb-3 mt-6">
+                        <h3 class="font-black text-gray-900 text-sm uppercase tracking-widest">Tracts Express</h3>
+                        <span class="text-[10px] text-cgtRed font-bold bg-red-50 px-2 py-0.5 rounded-full">Nouveau</span>
+                    </div>
+                    <div class="flex gap-4 overflow-x-auto hide-scrollbar px-6 snap-x">
+                        <div class="flex flex-col items-center gap-1.5 cursor-pointer snap-start" onclick="openStory(0)">
+                            <div class="story-ring"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=60&w=150&auto=format" class="w-14 h-14 rounded-full border-2 border-white object-cover shadow-sm"></div>
+                            <span class="text-[10px] font-bold text-gray-800">Grève NAO</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 cursor-pointer snap-start" onclick="openStory(1)">
+                            <div class="story-ring" style="background: linear-gradient(45deg, #3b82f6, #005EB8);"><img src="https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?q=60&w=150&auto=format" class="w-14 h-14 rounded-full border-2 border-white object-cover shadow-sm"></div>
+                            <span class="text-[10px] font-bold text-gray-800">Télétravail</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1.5 cursor-pointer snap-start" onclick="openStory(2)">
+                            <div class="story-ring" style="background: linear-gradient(45deg, #e5e7eb, #9ca3af);"><img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=60&w=150&auto=format" class="w-14 h-14 rounded-full border-2 border-white object-cover shadow-sm"></div>
+                            <span class="text-[10px] font-bold text-gray-800">Sécurité</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SONDAGE -->
+                <div class="px-6 mb-8">
+                    <div class="bg-surface rounded-3xl p-6 shadow-soft border border-gray-100/50" id="poll-widget">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-cgtRed"><i class="fas fa-poll text-lg"></i></div>
+                            <h3 class="font-black text-gray-900 text-[11px] uppercase tracking-widest">Question du jour</h3>
+                        </div>
+                        <p class="font-black text-gray-800 text-[17px] mb-5 leading-tight">Ferez-vous grève lors de la mobilisation nationale de mercredi ?</p>
+                        <div class="space-y-3" id="poll-options">
+                            <button onclick="votePoll(this, 1)" class="w-full text-left p-4 rounded-2xl border-2 border-gray-50 font-bold text-gray-600 hover:border-cgtRed hover:bg-red-50/20 active:scale-[0.98] transition-all flex justify-between items-center group">
+                                Oui, je fais grève <i class="far fa-circle text-gray-300 group-hover:text-cgtRed text-lg"></i>
+                            </button>
+                            <button onclick="votePoll(this, 2)" class="w-full text-left p-4 rounded-2xl border-2 border-gray-50 font-bold text-gray-600 hover:border-totalBlue hover:bg-blue-50/20 active:scale-[0.98] transition-all flex justify-between items-center group">
+                                Non, je ne fais pas grève <i class="far fa-circle text-gray-300 group-hover:text-totalBlue text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SITES -->
+                <div class="px-6 pb-6">
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="text-2xl font-black text-gray-900 tracking-tight">Vos Sites</h3>
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider">8 Sites</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4" id="sites-grid"></div>
+                </div>
+            </div>
+
+            <!-- VUE 2 : NEWS SITE -->
+            <div id="view-news" class="view-container">
+                <div class="relative h-[38vh] w-full overflow-hidden img-loading rounded-b-[40px] shadow-lg">
+                    <img src="" id="site-hero-img" class="w-full h-full object-cover" onload="this.classList.add('loaded')">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10"></div>
+                    <button onclick="goHome()" class="absolute safe-top left-6 w-11 h-11 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full flex items-center justify-center active:scale-90 transition-transform z-10"><i class="fas fa-arrow-left"></i></button>
+                    <div class="absolute bottom-8 left-6 right-6">
+                        <span class="inline-block px-3 py-1 bg-white/90 backdrop-blur-sm text-cgtRed text-[9px] font-black uppercase tracking-widest rounded mb-3">Section Syndicale</span>
+                        <h2 class="text-white text-4xl font-black leading-none tracking-tight" id="news-site-title">Site</h2>
+                    </div>
+                </div>
+                <div class="p-6 -mt-4 relative z-10" id="news-feed"></div>
+            </div>
+
+            <!-- VUE 3 : OUTILS -->
+            <div id="view-tools" class="view-container p-6 safe-pt">
+                <h2 class="text-4xl font-black text-gray-900 tracking-tight mb-2">Adhérent</h2>
+                <p class="text-gray-500 text-sm font-semibold mb-8">Vos outils syndicaux au quotidien.</p>
+
+                <div class="flip-card mb-8" onclick="this.classList.toggle('flipped'); hapticFeedback();">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-[#0A0A0A] p-7 text-white flex flex-col justify-between border border-gray-800 relative overflow-hidden">
+                            <div class="absolute inset-0 shimmer-bg opacity-10 animate-shimmer pointer-events-none"></div>
+                            <div class="flex justify-between items-start relative z-10">
+                                <img src="logo.jpg" class="w-12 h-12 bg-white rounded-xl p-1.5 object-contain">
+                                <i class="fas fa-wifi text-gray-500 rotate-90 text-xl"></i>
+                            </div>
+                            <div class="relative z-10 mt-8">
+                                <div class="text-[9px] text-gray-400 font-bold uppercase tracking-[0.3em] mb-1">Syndicat TotalEnergies</div>
+                                <h3 class="text-[28px] font-black tracking-widest font-mono">JAD ZORGUI</h3>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>
+                                    <p class="text-[10px] text-gray-400 font-bold tracking-widest">ADH-2024-08942</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-cgtRed to-cgtDarkRed p-7 text-white flex flex-col justify-center items-center shadow-red-glow">
+                            <div class="bg-white p-3 rounded-2xl mb-4 shadow-xl">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=ADH-2024-08942" alt="QR Code" class="w-24 h-24 mix-blend-multiply opacity-0 loaded" onload="this.classList.add('loaded')">
+                            </div>
+                            <p class="text-[10px] font-bold text-white/90 text-center tracking-wide leading-relaxed">Présentez ce code lors des Assemblées Générales.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-br from-totalBlue to-blue-800 p-5 rounded-3xl shadow-blue-glow border border-blue-400 flex flex-col items-center justify-center text-center col-span-2 active:scale-[0.97] transition-transform cursor-pointer" onclick="openTool('modal-chatbot')">
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl mb-2 border border-white/30"><i class="fas fa-robot"></i></div>
+                        <h4 class="font-black text-white text-lg tracking-tight">Assistant Juridique IA</h4>
+                        <p class="text-[10px] text-blue-100 font-bold mt-1 uppercase tracking-wider">Réponses confidentielles</p>
+                    </div>
+                    <div class="bg-surface p-5 rounded-3xl shadow-soft border border-gray-100 flex flex-col items-center justify-center text-center active:scale-[0.97] transition-transform cursor-pointer" onclick="openTool('modal-simulator')">
+                        <div class="w-12 h-12 bg-gray-50 text-gray-900 rounded-2xl flex items-center justify-center text-xl mb-3"><i class="fas fa-calculator"></i></div>
+                        <h4 class="font-black text-gray-900 text-[13px] leading-tight">Simulateur<br>NAO</h4>
+                    </div>
+                    <div class="bg-[#FFF5F5] p-5 rounded-3xl shadow-soft border border-red-100 flex flex-col items-center justify-center text-center active:scale-[0.97] transition-transform cursor-pointer" onclick="openTool('modal-dgi')">
+                        <div class="w-12 h-12 bg-red-100 text-cgtRed rounded-full flex items-center justify-center text-xl mb-2"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h4 class="font-black text-cgtRed text-[13px] leading-tight mt-1">Alerte<br>DGI</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VUE 4 : AGENDA -->
+            <div id="view-agenda" class="view-container p-6 safe-pt">
+                <h2 class="text-4xl font-black text-gray-900 tracking-tight mb-2">Calendrier</h2>
+                <p class="text-gray-500 text-sm font-semibold mb-8">Prochains rendez-vous sociaux.</p>
+                <div id="agenda-list" class="space-y-4 pb-32"></div>
+            </div>
+
+            <!-- VUE 5 : CONTACT -->
+            <div id="view-contact" class="view-container p-6 safe-pt">
+                <h2 class="text-4xl font-black text-gray-900 tracking-tight mb-6">Contact</h2>
+                <div class="bg-[#111] p-8 rounded-[36px] text-white text-center mb-8 relative overflow-hidden shadow-float border border-gray-800">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-cgtRed/30 rounded-full blur-[40px]"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 bg-totalBlue/20 rounded-full blur-[40px]"></div>
+                    <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-5 border border-white/10 relative z-10 text-white text-3xl"><i class="fas fa-headset"></i></div>
+                    <h2 class="text-2xl font-black mb-2 tracking-tight relative z-10">Vos Délégués</h2>
+                    <p class="text-xs text-gray-400 font-medium leading-relaxed relative z-10">Une question ?<br>Confidentialité garantie.</p>
+                </div>
+                <div class="space-y-4">
+                    <a href="mailto:Jad.zorgui07@gmail.com" class="flex items-center justify-center gap-3 w-full bg-cgtRed text-white py-5 rounded-2xl font-black text-sm shadow-red-glow active:scale-[0.98] transition-all"><i class="fas fa-envelope text-lg"></i> ÉCRIRE À LA CGT</a>
+                    <a href="https://wa.me/33788408004" target="_blank" class="flex items-center justify-center gap-3 w-full bg-surface border border-gray-100 py-5 rounded-2xl font-black text-sm text-[#25D366] shadow-sm active:scale-[0.98] transition-all"><i class="fab fa-whatsapp text-2xl"></i> WHATSAPP</a>
+                </div>
+            </div>
+        </main>
+
+        <nav class="glass-nav">
+            <button onclick="switchTab('home')" id="btn-home" class="nav-item active"><i class="fas fa-home"></i><span>Accueil</span></button>
+            <button onclick="switchTab('agenda')" id="btn-agenda" class="nav-item inactive"><i class="fas fa-calendar-alt"></i><span>Agenda</span></button>
+            <button onclick="switchTab('tools')" id="btn-tools" class="nav-item inactive"><i class="fas fa-id-card"></i><span>Outils</span></button>
+            <button onclick="switchTab('contact')" id="btn-contact" class="nav-item inactive"><i class="fas fa-comment-dots"></i><span>Contact</span></button>
+        </nav>
+
+        <!-- Modals... -->
+        <div id="view-story">
+            <div class="absolute safe-top left-4 right-4 flex gap-1 z-20" id="story-progress-container">
+                <div class="h-1 bg-white/30 rounded-full flex-1 overflow-hidden"><div class="h-full bg-white w-0" id="story-bar"></div></div>
+            </div>
+            <button onclick="closeStory()" class="absolute safe-top right-4 mt-4 w-10 h-10 z-20 flex items-center justify-center text-white text-2xl drop-shadow-md"><i class="fas fa-times"></i></button>
+            <div class="absolute inset-0 z-10 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
+            <img src="" id="story-img" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute bottom-12 left-6 right-6 z-20 text-white">
+                <span class="inline-block px-3 py-1 bg-cgtRed text-[10px] font-black uppercase tracking-widest rounded mb-3">Tract Flash</span>
+                <h2 id="story-title" class="text-4xl font-black leading-none tracking-tight drop-shadow-lg mb-3 text-white">Titre</h2>
+                <p id="story-desc" class="text-sm font-bold text-white/90 drop-shadow-md">Description</p>
+                <button class="w-full mt-6 py-5 bg-white text-gray-900 rounded-2xl font-black text-sm active:scale-95 transition-transform" onclick="closeStory();">COMPRIS</button>
+            </div>
+        </div>
+
+        <div id="modal-chatbot">
+            <div class="px-6 safe-pt pb-4 bg-totalBlue rounded-b-[40px] shadow-sm relative z-10 text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl text-white"><i class="fas fa-robot text-white"></i></div>
+                    <div>
+                        <h2 class="text-xl font-black tracking-tight text-white">IA Syndicale</h2>
+                        <div class="flex items-center gap-1"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> <span class="text-[10px] font-bold uppercase tracking-wider text-white">Connecté</span></div>
+                    </div>
+                </div>
+                <button onclick="closeTool('modal-chatbot')" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white"><i class="fas fa-times text-lg text-white"></i></button>
+            </div>
+            <div class="flex-1 p-6 overflow-y-auto flex flex-col min-h-0" id="chat-messages">
+                <div class="chat-bubble-bot shadow-soft animate-fade-in">Bonjour Jad ! Nous sommes là pour répondre à vos questions. Comment pouvons-nous vous aider ?</div>
+            </div>
+            <div class="p-4 bg-surface border-t border-gray-100 safe-pb shrink-0">
+                <div class="relative flex items-center gap-2">
+                    <input type="text" id="chat-input" placeholder="Posez votre question..." class="flex-1 bg-gray-50 border border-gray-200 rounded-full py-3.5 pl-5 pr-4 text-sm font-semibold outline-none focus:border-totalBlue">
+                    <button onclick="sendChatMessage()" class="w-12 h-12 bg-totalBlue text-white rounded-full flex items-center justify-center shadow-md"><i class="fas fa-paper-plane text-white"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-simulator">
+            <div class="px-6 safe-pt pb-6 bg-surface rounded-b-[40px] shadow-sm relative z-10 border-b border-gray-100">
+                <button onclick="closeTool('modal-simulator')" class="absolute safe-top right-6 w-10 h-10 bg-gray-50 text-gray-900 rounded-full flex items-center justify-center"><i class="fas fa-times text-lg"></i></button>
+                <div class="w-12 h-12 bg-gray-50 text-gray-900 rounded-xl flex items-center justify-center text-xl mb-4 shadow-inner"><i class="fas fa-calculator"></i></div>
+                <h2 class="text-3xl font-black text-gray-900">Simulateur</h2>
+            </div>
+            <div class="p-6">
+                <div class="bg-surface p-5 rounded-3xl shadow-soft border border-gray-100 mb-6">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Salaire brut mensuel (€)</label>
+                    <input type="number" id="sim-salary" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-5 text-2xl font-black text-gray-900 outline-none" value="2500">
+                    <button onclick="calculateNao()" class="w-full mt-4 bg-gray-900 text-white py-4 rounded-xl font-black text-sm active:scale-[0.98]">CALCULER</button>
+                </div>
+                <div id="sim-results" class="space-y-4 opacity-0 transition-opacity duration-500">
+                    <div class="bg-surface p-5 rounded-3xl border-l-[4px] border-l-gray-300 shadow-soft">
+                        <h4 class="font-black text-gray-400 text-[10px] uppercase mb-1">Proposition Direction (+2.5%)</h4>
+                        <span class="text-2xl font-black text-gray-800" id="res-dir">+0€</span>
+                    </div>
+                    <div class="bg-gradient-to-br from-cgtRed to-cgtDarkRed p-5 rounded-3xl shadow-red-glow text-white relative overflow-hidden">
+                        <h4 class="font-black text-white/80 text-[10px] uppercase mb-1">Revendication CGT (+6% ou 150€)</h4>
+                        <span class="text-3xl font-black text-white" id="res-cgt">+0€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-dgi" class="bg-[#FFF5F5]">
+            <div id="dgi-form-view" class="h-full">
+                <div class="px-6 safe-pt pb-6 bg-cgtRed rounded-b-[40px] shadow-red-glow relative z-10 text-white">
+                    <button onclick="closeTool('modal-dgi')" class="absolute safe-top right-6 w-10 h-10 bg-black/20 text-white rounded-full flex items-center justify-center"><i class="fas fa-times text-lg"></i></button>
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-xl text-white mb-4 border border-white/20"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h2 class="text-3xl font-black text-white">Alerte DGI</h2>
+                </div>
+                <div class="p-6 mt-2">
+                    <div class="bg-surface p-4 rounded-3xl shadow-soft border border-red-50 mb-4">
+                        <label class="block text-[10px] font-black text-gray-800 uppercase mb-2">Nature du danger</label>
+                        <select class="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm font-bold"><option>Fuite Gazeuse</option><option>Risque Explosion</option></select>
+                    </div>
+                    <button onclick="submitDgi()" id="btn-submit-dgi" class="w-full bg-cgtRed text-white py-4 rounded-2xl font-black text-sm shadow-red-glow flex justify-center items-center gap-2"><i class="fas fa-paper-plane text-white"></i> ENVOYER L'ALERTE</button>
+                </div>
+            </div>
+            <div id="dgi-success-view" class="hidden h-full flex flex-col items-center justify-center p-8 text-center bg-surface">
+                <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-white text-3xl mb-5 shadow-xl"><i class="fas fa-check text-white"></i></div>
+                <h2 class="text-3xl font-black text-gray-900 mb-2">Transmise !</h2>
+                <button onclick="closeTool('modal-dgi')" class="w-full bg-gray-900 text-white py-4 rounded-xl font-black mt-8 shadow-soft">RETOUR</button>
+            </div>
+        </div>
+
+        <div id="view-article">
+            <div class="relative h-[40vh] img-loading rounded-b-[40px] shadow-lg overflow-hidden">
+                <img id="article-img" src="" class="w-full h-full object-cover" onload="this.classList.add('loaded')">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#F8FAFC] via-transparent to-black/40"></div>
+                <button onclick="closeArticle()" class="absolute safe-top right-6 w-11 h-11 bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center z-10"><i class="fas fa-times text-gray-900 text-lg"></i></button>
+            </div>
+            <div class="px-6 pb-36 pt-2 relative z-10 -mt-8">
+                <span id="article-tag" class="text-[9px] font-black text-cgtRed uppercase bg-red-100 px-3 py-1.5 rounded-md tracking-widest shadow-sm">INFOS</span>
+                <h1 id="article-title" class="text-3xl font-black mt-4 leading-tight text-gray-900 tracking-tight text-gray-900 text-white">Titre</h1>
+                <div id="article-body" class="mt-6 text-gray-700 leading-relaxed text-[15px] font-medium border-t border-gray-200 pt-6"></div>
+                <button onclick="toggleSupport(this)" class="w-full py-4 mt-8 bg-gray-50 border-2 border-gray-100 rounded-2xl font-black text-sm text-gray-600 flex items-center justify-center gap-2">
+                    <i class="far fa-hand-rock text-xl"></i> <span class="btn-text">JE SOUTIENS (42)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; 
+
+        function hapticFeedback() { if ("vibrate" in navigator) navigator.vibrate(50); }
+
+        const rawSites = [
+            { id: 'carling', name: 'Carling', region: 'Est', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=60&w=400' },
+            { id: 'donges', name: 'Donges', region: 'St-Nazaire', img: 'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=60&w=400' },
+            { id: 'feyzin', name: 'Feyzin', region: 'Lyon', img: 'https://images.unsplash.com/photo-1611270629569-8b357cb88da9?q=60&w=400' },
+            { id: 'flandres', name: 'Flandres', region: 'Nord', img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=60&w=400' },
+            { id: 'grandpuits', name: 'Grandpuits', region: 'IDF', img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?q=60&w=400' },
+            { id: 'lamede', name: 'La Mède', region: 'Provence', img: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=60&w=400' },
+            { id: 'normandie', name: 'Normandie', region: 'Le Havre', img: 'https://images.unsplash.com/photo-1527018601619-a508a2be00cd?q=60&w=400' },
+            { id: 'oudalle', name: 'Oudalle', region: 'Le Havre', img: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=60&w=400' }
+        ];
+
+        const storiesData = [
+            { title: "Grève Mercredi", desc: "Tous unis dès 06h00 devant le portail.", img: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800" },
+            { title: "Télétravail", desc: "Nous avons signé pour 2 jours garantis.", img: "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?q=80&w=800" },
+            { title: "Sécurité Unité 12", desc: "Piquet de vigilance en place.", img: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800" }
+        ];
+
+        const agendaEvents = [
+            { day: "12", month: "Mars", title: "Réunion NAO #4", loc: "Siège Paris", type: "national" },
+            { day: "15", month: "Mars", title: "AG du Personnel", loc: "Local CGT / Cantine", type: "local" },
+            { day: "18", month: "Mars", title: "Commission CSSCT", loc: "Salle de réunion A", type: "local" },
+            { day: "20", month: "Mars", title: "Permanence Juridique", loc: "Bureau CGT", type: "local" },
+            { day: "25", month: "Mars", title: "CSE Central", loc: "Salle Plénière", type: "national" }
+        ];
+
+        const siteContent = {
+            'default': [
+                { title: "Grève Nationale NAO", tag: "Urgent", image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=60&w=400", content: "<p>Nous exigeons une augmentation digne !</p>" },
+                { title: "Bilan Sécurité", tag: "Info", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=60&w=400", content: "<p>Vigilance accrue sur les EPI.</p>" }
+            ]
+        };
+
+        function init() {
+            const grid = document.getElementById('sites-grid');
+            rawSites.sort((a,b)=>a.name.localeCompare(b.name)).forEach(s => {
+                grid.innerHTML += `
+                    <div class="relative h-[160px] rounded-[28px] overflow-hidden shadow-soft active:scale-[0.96] transition-all bg-white cursor-pointer" onclick="selectSite('${s.id}')">
+                        <img src="${s.img}" class="w-full h-full object-cover" onload="this.classList.add('loaded')">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#111]/90 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4 text-white">
+                            <span class="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 bg-white/20 backdrop-blur-md rounded mb-1 inline-block">${s.region}</span>
+                            <h3 class="font-black text-lg text-white leading-tight">${s.name}</h3>
+                        </div>
+                    </div>`;
+            });
+
+            const agendaList = document.getElementById('agenda-list');
+            agendaList.innerHTML = agendaEvents.map(e => `
+                <div class="bg-surface p-5 rounded-[28px] border border-gray-100 shadow-soft flex items-center gap-5 relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-2 h-full ${e.type === 'national' ? 'bg-cgtRed' : 'bg-totalBlue'}"></div>
+                    <div class="w-16 h-16 bg-gray-50 rounded-[20px] flex items-center justify-center text-gray-900 font-black flex-shrink-0 border border-gray-100 ml-2 shadow-inner">
+                        <div class="text-center">
+                            <div class="leading-none text-2xl">${e.day}</div>
+                            <div class="text-[9px] uppercase font-black tracking-widest mt-1 ${e.type === 'national' ? 'text-cgtRed' : 'text-totalBlue'}">${e.month}</div>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[17px] font-black text-gray-900 leading-tight mb-1.5">${e.title}</p>
+                        <p class="text-[13px] text-gray-500 font-bold"><i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>${e.loc}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            const hour = new Date().getHours();
+            document.getElementById('greeting').textContent = (hour >= 18 || hour < 5) ? "Bonsoir, Jad" : "Bonjour, Jad";
+            setTimeout(() => document.getElementById('splash-screen').style.display='none', 1200);
+        }
+
+        let chatHistory = [];
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+            hapticFeedback();
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.innerHTML += `<div class="chat-bubble-user animate-slide-up">${msg}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+            const typingId = 'typing-' + Date.now();
+            chatBox.innerHTML += `<div id="${typingId}" class="chat-bubble-bot"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await response.json();
+                document.getElementById(typingId).remove();
+                chatBox.innerHTML += `<div class="chat-bubble-bot animate-slide-up">${data.reply.replace(/\n/g, '<br>')}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (e) {
+                document.getElementById(typingId).remove();
+                chatBox.innerHTML += `<div class="chat-bubble-bot text-red-500 font-bold">Nous rencontrons une erreur de connexion.</div>`;
+            }
+        }
+
+        function calculateNao() {
+            const salary = parseFloat(document.getElementById('sim-salary').value) || 0;
+            const gainDir = Math.round((salary * 0.025) * 0.78);
+            let gainCgt = salary * 0.06; if (gainCgt < 150) gainCgt = 150;
+            const gainCgtNet = Math.round(gainCgt * 0.78);
+            document.getElementById('res-dir').textContent = "+" + gainDir + "€";
+            document.getElementById('res-cgt').textContent = "+" + gainCgtNet + "€";
+            document.getElementById('sim-results').classList.remove('opacity-0');
+        }
+
+        function selectSite(id) {
+            hapticFeedback();
+            const site = rawSites.find(s=>s.id===id);
+            document.getElementById('news-site-title').textContent = site.name;
+            document.getElementById('site-hero-img').src = site.img;
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('view-news').classList.add('active');
+            renderNews();
+        }
+
+        function renderNews() {
+            const feed = document.getElementById('news-feed'); feed.innerHTML = '';
+            siteContent['default'].forEach(n => {
+                feed.innerHTML += `
+                    <div class="bg-surface p-4 rounded-3xl shadow-soft mb-4 border border-gray-100 cursor-pointer" onclick="openArticle('${n.title}')">
+                        <img src="${n.image}" class="w-full h-32 object-cover rounded-2xl mb-3">
+                        <h4 class="font-black text-gray-900 text-sm">${n.title}</h4>
+                    </div>`;
+            });
+        }
+
+        function openArticle(title) {
+            hapticFeedback();
+            const art = siteContent['default'][0];
+            document.getElementById('article-title').textContent = title;
+            document.getElementById('article-img').src = art.image;
+            document.getElementById('article-body').innerHTML = art.content;
+            document.getElementById('view-article').classList.add('show-modal');
+        }
+
+        function switchTab(tab) {
+            hapticFeedback();
+            ['home', 'agenda', 'tools', 'contact'].forEach(t => document.getElementById(`btn-${t}`).className = (t === tab) ? "nav-item active" : "nav-item inactive");
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.getElementById('main-header').style.display = (tab === 'home') ? 'block' : 'none';
+            document.getElementById(tab === 'home' ? 'view-sites' : `view-${tab}`).classList.add('active');
+        }
+
+        function openTool(id) { hapticFeedback(); document.getElementById(id).classList.add('show-modal'); }
+        function closeTool(id) { document.getElementById(id).classList.remove('show-modal'); }
+        function goHome() { document.querySelectorAll('.view-container').forEach(v=>v.classList.remove('active')); document.getElementById('view-sites').classList.add('active'); document.getElementById('main-header').style.display='block'; }
+        function closeArticle() { document.getElementById('view-article').classList.remove('show-modal'); }
+        function toggleNotifications() { alert('Notifications activées'); }
+        function votePoll(btn, choice) { hapticFeedback(); btn.parentElement.innerHTML = '<p class="text-center font-black text-cgtRed p-4 animate-fade-in">Merci pour votre vote !</p>'; }
+        function toggleSupport(btn) { hapticFeedback(); btn.innerHTML = '<i class="fas fa-check"></i> ACTION SOUTENUE'; btn.classList.add('bg-red-50', 'text-cgtRed'); }
+        function submitDgi() { hapticFeedback(); document.getElementById('btn-submit-dgi').innerHTML='...'; setTimeout(()=>{ document.getElementById('dgi-form-view').classList.add('hidden'); document.getElementById('dgi-success-view').classList.remove('hidden'); }, 1500); }
+
+        init();
+    </script>
+</body>
 </html>
