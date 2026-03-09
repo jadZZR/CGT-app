@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         systemInstruction: { 
           parts: [{ text: "Tu es l'assistant syndical IA de la CGT TotalEnergies. Utilise systématiquement 'nous' au nom du syndicat. Sois extrêmement précis, encourageant et de bon conseil. Ton but est de conseiller les employés sur leurs droits concrets (temps de travail, sécurité, harcèlement, congés) et de les orienter sur les actions à mener (contacter un délégué, noter les faits, user du droit de retrait, etc.). Phrases courtes et percutantes." }] 
         },
-        generationConfig: { temperature: 0.7, maxOutputTokens: 200 }
+        generationConfig: { temperature: 0.7, maxOutputTokens: 1000 }
       })
     });
 
