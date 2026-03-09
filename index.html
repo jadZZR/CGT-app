@@ -583,7 +583,55 @@
         function goHome() { document.querySelectorAll('.view-container').forEach(v=>v.classList.remove('active')); document.getElementById('view-sites').classList.add('active'); document.getElementById('main-header').style.display='block'; }
         function closeArticle() { document.getElementById('view-article').classList.remove('show-modal'); }
         function toggleNotifications() { alert('Notifications activées'); }
-        function votePoll(btn, choice) { hapticFeedback(); btn.parentElement.innerHTML = '<p class="text-center font-black text-cgtRed p-4 animate-fade-in">Merci pour votre vote !</p>'; }
+        function votePoll(btn, choice) { 
+            hapticFeedback(); 
+            const parent = btn.parentElement;
+            
+            // Simulation des data (on favorise le choix de l'utilisateur pour l'effet Wow)
+            const yesVotes = choice === 1 ? 84 : 80;
+            const noVotes = 100 - yesVotes;
+            
+            parent.innerHTML = `
+                <div class="space-y-4 animate-fade-in mt-2">
+                    <p class="text-center font-black text-cgtRed text-lg">Merci pour votre vote !</p>
+                    
+                    <!-- Barre "Oui" -->
+                    <div class="relative w-full h-12 bg-gray-100 rounded-xl overflow-hidden flex items-center px-4">
+                        <div class="absolute inset-y-0 left-0 bg-cgtRed transition-all duration-1000 ease-out" style="width: 0%" id="bar-yes"></div>
+                        <div class="relative z-10 font-bold text-gray-900 flex justify-between w-full">
+                            <span class="text-white">Oui</span>
+                            <span class="text-white font-black" id="pct-yes">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Barre "Non" -->
+                    <div class="relative w-full h-12 bg-gray-100 rounded-xl overflow-hidden flex items-center px-4">
+                        <div class="absolute inset-y-0 left-0 bg-totalBlue transition-all duration-1000 ease-out" style="width: 0%" id="bar-no"></div>
+                        <div class="relative z-10 font-bold text-gray-900 flex justify-between w-full">
+                            <span class="text-white drop-shadow-md">Non</span>
+                            <span class="text-white font-black drop-shadow-md" id="pct-no">0%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Animation des pourcentages
+            setTimeout(() => {
+                document.getElementById('bar-yes').style.width = yesVotes + '%';
+                document.getElementById('bar-no').style.width = noVotes + '%';
+                
+                // Compteur animé
+                let currentYes = 0; let currentNo = 0;
+                const interval = setInterval(() => {
+                    if(currentYes < yesVotes) currentYes += 2;
+                    if(currentNo < noVotes) currentNo += 2;
+                    if(currentYes >= yesVotes && currentNo >= noVotes) clearInterval(interval);
+                    
+                    document.getElementById('pct-yes').textContent = Math.min(currentYes, yesVotes) + '%';
+                    document.getElementById('pct-no').textContent = Math.min(currentNo, noVotes) + '%';
+                }, 20);
+            }, 100);
+        }
         function toggleSupport(btn) { hapticFeedback(); btn.innerHTML = '<i class="fas fa-check"></i> ACTION SOUTENUE'; btn.classList.add('bg-red-50', 'text-cgtRed'); }
         function submitDgi() { hapticFeedback(); document.getElementById('btn-submit-dgi').innerHTML='...'; setTimeout(()=>{ document.getElementById('dgi-form-view').classList.add('hidden'); document.getElementById('dgi-success-view').classList.remove('hidden'); }, 1500); }
 
