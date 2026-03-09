@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .safe-pt {
+    padding-top: calc(env(safe-area-inset-top) + 60px);
+  }
+  .safe-top {
+    top: calc(env(safe-area-inset-top) + 20px);
+  }
+  .safe-pb {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+  }
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+  html, body {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(-45deg, #e2e8f0, #ffe4e6, #e0f2fe, #f1f5f9);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    position: fixed;
+  }
+}
