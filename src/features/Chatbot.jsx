@@ -80,13 +80,32 @@ export default function ChatbotModal({ isOpen, onClose }) {
                 key={idx}
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                className={`max-w-[85%] text-sm px-4 py-3 shadow-sm ${
+                className={`max-w-[85%] text-sm shadow-sm flex flex-col gap-2 ${
                   msg.role === 'bot' 
-                    ? `bg-white text-gray-800 rounded-2xl rounded-bl-sm border border-gray-100 ${msg.error ? 'text-red-500 font-bold' : ''}`
-                    : 'bg-totalBlue text-white rounded-2xl rounded-br-sm shadow-blue-glow self-end'
+                    ? 'self-start'
+                    : 'self-end'
                 }`}
               >
-                {msg.text}
+                <div className={`px-4 py-3 ${
+                  msg.role === 'bot' 
+                    ? `bg-white text-gray-800 rounded-2xl rounded-bl-sm border border-gray-100 ${msg.error ? 'text-red-500 font-bold' : ''}`
+                    : 'bg-totalBlue text-white rounded-2xl rounded-br-sm shadow-blue-glow'
+                }`}>
+                  {msg.text.replace(/\[SHOW_CONTACT_BUTTON\]/g, '')}
+                </div>
+                
+                {msg.role === 'bot' && msg.text.includes('[SHOW_CONTACT_BUTTON]') && (
+                  <motion.a 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    href="mailto:contact@cgt.fr"
+                    className="bg-cgtRed text-white px-4 py-2.5 rounded-xl text-xs font-black shadow-red-glow flex items-center justify-center gap-2 self-start active:scale-95 transition-transform"
+                  >
+                    <Send size={14} className="rotate-[-45deg] mb-0.5" />
+                    CONTACTER LA CGT
+                  </motion.a>
+                )}
               </motion.div>
             ))}
 

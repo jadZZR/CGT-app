@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -15,6 +16,8 @@ export default {
         totalBlue: '#005EB8',
         bgApp: '#F8FAFC',
         surface: '#FFFFFF',
+        darkBgApp: '#0F172A',
+        darkSurface: '#1E293B',
       },
       boxShadow: {
         'soft': '0 8px 30px rgba(0, 0, 0, 0.04)',

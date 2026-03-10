@@ -1,18 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logoImg from '../assets/logo.jpg';
 
 export default function Header() {
   const [greeting, setGreeting] = useState("Bonjour, Camarade");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const hour = new Date().getHours();
+
     if (hour >= 18 || hour < 5) {
       setGreeting("Bonsoir, Camarade");
     }
+    
+    // Check local storage for theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
   }, []);
+
+  const toggleDarkMode = () => {
+    if (navigator.vibrate) navigator.vibrate(50);
+    if (isDarkMode) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      setIsDarkMode(true);
+    }
+  };
 
   const handleNotificationClick = () => {
     if (navigator.vibrate) navigator.vibrate(50);
@@ -43,14 +65,23 @@ export default function Header() {
               <h2 className="text-2xl font-black tracking-tight leading-none">{greeting}</h2>
             </motion.div>
           </div>
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            onClick={handleNotificationClick}
-            className="relative w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 text-white shadow-sm transition-all"
-          >
-            <Bell size={22} />
-            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-yellow-400 border-2 border-cgtRed rounded-full shadow-sm animate-pulse"></span>
-          </motion.button>
+          <div className="flex gap-2">
+            <motion.button 
+              whileTap={{ scale: 0.9 }}
+              onClick={toggleDarkMode}
+              className="relative w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 text-white shadow-sm transition-all"
+            >
+              {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
+            </motion.button>
+            <motion.button 
+              whileTap={{ scale: 0.9 }}
+              onClick={handleNotificationClick}
+              className="relative w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 text-white shadow-sm transition-all"
+            >
+              <Bell size={22} />
+              <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-yellow-400 border-2 border-cgtRed rounded-full shadow-sm animate-pulse"></span>
+            </motion.button>
+          </div>
         </div>
       </div>
 

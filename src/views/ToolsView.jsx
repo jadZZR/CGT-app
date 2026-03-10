@@ -19,8 +19,8 @@ export default function ToolsView() {
 
   return (
     <div className="p-6 safe-pt h-full flex flex-col">
-      <h2 className="text-4xl font-black text-gray-900 tracking-tight mb-2">Adhérent</h2>
-      <p className="text-gray-500 text-sm font-semibold mb-8">Vos outils syndicaux au quotidien.</p>
+      <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight mb-2 transition-colors">Adhérent</h2>
+      <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold mb-8 transition-colors">Vos outils syndicaux au quotidien.</p>
 
       {/* Carte Adhérent 3D */}
       <div 
@@ -83,25 +83,25 @@ export default function ToolsView() {
         <motion.div 
           whileTap={{ scale: 0.96 }}
           onClick={() => setShowSim(true)}
-          className="bg-surface p-5 rounded-3xl shadow-soft border border-gray-100 flex flex-col items-center justify-center text-center cursor-pointer relative overflow-hidden group"
+          className="bg-surface dark:bg-darkSurface p-5 rounded-3xl shadow-soft border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center text-center cursor-pointer relative overflow-hidden group transition-colors"
         >
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-gray-50 rounded-full group-hover:bg-gray-100 transition-colors"></div>
-          <div className="w-12 h-12 bg-gray-50 text-gray-900 rounded-2xl flex items-center justify-center mb-3 relative z-10 group-hover:bg-white transition-colors">
+          <div className="absolute -right-4 -top-4 w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full group-hover:bg-gray-100 dark:group-hover:bg-gray-700 transition-colors"></div>
+          <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl flex items-center justify-center mb-3 relative z-10 group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
             <Calculator size={22} className="stroke-[2.5px]" />
           </div>
-          <h4 className="font-black text-gray-900 text-[13px] leading-tight relative z-10">Simulateur<br/>NAO</h4>
+          <h4 className="font-black text-gray-900 dark:text-gray-100 text-[13px] leading-tight relative z-10 transition-colors">Simulateur<br/>NAO</h4>
         </motion.div>
         
         <motion.div 
           whileTap={{ scale: 0.96 }}
           onClick={() => setShowDgi(true)}
-          className="bg-[#FFF5F5] p-5 rounded-3xl shadow-soft border border-red-100 flex flex-col items-center justify-center text-center cursor-pointer relative overflow-hidden group"
+          className="bg-[#FFF5F5] dark:bg-red-500/10 p-5 rounded-3xl shadow-soft border border-red-100 dark:border-red-900/30 flex flex-col items-center justify-center text-center cursor-pointer relative overflow-hidden group transition-colors"
         >
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-red-50 rounded-full group-hover:bg-red-100 transition-colors"></div>
-          <div className="w-12 h-12 bg-red-100 text-cgtRed rounded-full flex items-center justify-center mb-2 relative z-10 group-hover:bg-white transition-colors">
+          <div className="absolute -right-4 -top-4 w-16 h-16 bg-red-50 dark:bg-red-500/20 rounded-full group-hover:bg-red-100 dark:group-hover:bg-red-500/30 transition-colors"></div>
+          <div className="w-12 h-12 bg-red-100 dark:bg-red-500/20 text-cgtRed dark:text-red-400 rounded-full flex items-center justify-center mb-2 relative z-10 group-hover:bg-white dark:group-hover:bg-red-500/30 transition-colors">
             <AlertTriangle size={22} className="stroke-[2.5px]" />
           </div>
-          <h4 className="font-black text-cgtRed text-[13px] leading-tight mt-1 relative z-10">Alerte<br/>DGI</h4>
+          <h4 className="font-black text-cgtRed dark:text-red-400 text-[13px] leading-tight mt-1 relative z-10 transition-colors">Alerte<br/>DGI</h4>
         </motion.div>
       </div>
 

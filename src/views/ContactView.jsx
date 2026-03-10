@@ -5,12 +5,12 @@ import { Headset, Mail, MessageCircle } from 'lucide-react';
 export default function ContactView() {
   return (
     <div className="p-6 safe-pt h-full pb-32 flex flex-col">
-      <h2 className="text-4xl font-black text-gray-900 tracking-tight mb-6">Contact</h2>
+      <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight mb-6 transition-colors">Contact</h2>
       
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-[#111] p-8 rounded-[36px] text-white text-center mb-8 relative overflow-hidden shadow-float border border-gray-800"
+        className="bg-[#111] dark:bg-black p-8 rounded-[36px] text-white text-center mb-8 relative overflow-hidden shadow-float border border-gray-800 dark:border-gray-900 transition-colors"
       >
         <div className="absolute top-0 right-0 w-32 h-32 bg-cgtRed/30 rounded-full blur-[40px] pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-totalBlue/20 rounded-full blur-[40px] pointer-events-none"></div>
@@ -39,7 +39,7 @@ export default function ContactView() {
           href="https://wa.me/33788408004" 
           target="_blank" 
           rel="noreferrer"
-          className="flex items-center justify-center gap-3 w-full bg-surface border-2 border-green-50 py-5 rounded-2xl font-black text-sm text-[#25D366] shadow-soft transition-all hover:bg-green-50/30 hover:border-green-100"
+          className="flex items-center justify-center gap-3 w-full bg-surface dark:bg-darkSurface border-2 border-green-50 dark:border-green-900/30 py-5 rounded-2xl font-black text-sm text-[#25D366] shadow-soft transition-all hover:bg-green-50/30 dark:hover:bg-green-900/20 hover:border-green-100 dark:hover:border-green-800"
         >
           <MessageCircle size={22} className="fill-current" /> WHATSAPP
         </motion.a>
