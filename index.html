@@ -149,9 +149,18 @@
     <div class="app-frame font-sans">
         <!-- Splash Screen -->
         <div id="splash-screen">
-            <div class="w-32 h-32 mb-8 relative">
+            <div class="w-32 h-32 mb-8 relative flex items-center justify-center">
                 <div class="absolute inset-0 bg-white/30 rounded-full blur-xl animate-pulse"></div>
-                <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full border-[5px] border-white shadow-2xl relative z-10 bg-white" onload="this.classList.add('loaded')">
+                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#E30613] to-[#8A0008] rounded-full border-[5px] border-white shadow-2xl relative z-10 overflow-hidden">
+                    <span class="text-white font-black text-5xl tracking-tighter drop-shadow-lg" style="font-family: 'Montserrat', sans-serif;">CGT</span>
+                    <div class="flex gap-1 mt-2">
+                        <span class="w-2 h-2 rounded-full bg-[#E30613] shadow-sm"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#E63946] shadow-sm"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#F3A712] shadow-sm"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#A8C686] shadow-sm"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#005EB8] shadow-sm"></span>
+                    </div>
+                </div>
             </div>
             <div class="text-white font-black text-3xl tracking-tight mb-8 drop-shadow-md">La force syndicale.</div>
             <div class="w-16 h-1.5 bg-black/20 rounded-full overflow-hidden">
@@ -165,7 +174,7 @@
                 <div class="flex justify-between items-center mt-2 relative z-10">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center p-0.5 relative group">
-                            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain rounded-full" onload="this.classList.add('loaded')">
+                            <img src="logo.jpg" alt="Logo CGT" class="w-full h-full object-contain rounded-full">
                             <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
                         </div>
                         <div class="text-white">
@@ -257,7 +266,7 @@
                         <div class="flip-card-front bg-[#0A0A0A] p-7 text-white flex flex-col justify-between border border-gray-800 relative overflow-hidden">
                             <div class="absolute inset-0 shimmer-bg opacity-10 animate-shimmer pointer-events-none"></div>
                             <div class="flex justify-between items-start relative z-10">
-                                <img src="logo.jpg" class="w-12 h-12 bg-white rounded-xl p-1.5 object-contain">
+                                <img src="logo.jpg" alt="Logo CGT" class="w-12 h-12 bg-white rounded-xl p-1.5 object-contain border border-gray-200">
                                 <i class="fas fa-wifi text-gray-500 rotate-90 text-xl"></i>
                             </div>
                             <div class="relative z-10 mt-8">
@@ -291,6 +300,12 @@
                     <div class="bg-[#FFF5F5] p-5 rounded-3xl shadow-soft border border-red-100 flex flex-col items-center justify-center text-center active:scale-[0.97] transition-transform cursor-pointer" onclick="openTool('modal-dgi')">
                         <div class="w-12 h-12 bg-red-100 text-cgtRed rounded-full flex items-center justify-center text-xl mb-2"><i class="fas fa-exclamation-triangle"></i></div>
                         <h4 class="font-black text-cgtRed text-[13px] leading-tight mt-1">Alerte<br>DGI</h4>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-5 rounded-3xl shadow-float flex flex-col items-center justify-center text-center col-span-2 active:scale-[0.97] transition-transform cursor-pointer mt-2" onclick="openQuiz()">
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl mb-2 border border-white/30"><i class="fas fa-trophy"></i></div>
+                        <h4 class="font-black text-white text-lg tracking-tight">Quiz : Connaissez-vous vos droits ?</h4>
+                        <p class="text-[10px] text-orange-50 font-bold mt-1 uppercase tracking-wider">Testez vos connaissances en 3 minutes</p>
                     </div>
                 </div>
             </div>
@@ -424,6 +439,27 @@
                 <button onclick="toggleSupport(this)" class="w-full py-4 mt-8 bg-gray-50 border-2 border-gray-100 rounded-2xl font-black text-sm text-gray-600 flex items-center justify-center gap-2">
                     <i class="far fa-hand-rock text-xl"></i> <span class="btn-text">JE SOUTIENS (42)</span>
                 </button>
+            </div>
+        </div>
+        </div>
+        
+        <!-- MODAL QUIZ -->
+        <div id="modal-quiz" class="view-container">
+            <div class="px-6 safe-pt pb-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-b-[40px] shadow-sm relative z-10 text-white">
+                <button onclick="closeTool('modal-quiz')" class="absolute safe-top right-6 w-10 h-10 bg-black/10 rounded-full flex items-center justify-center"><i class="fas fa-times text-lg"></i></button>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-xl mb-4 shadow-inner border border-white/20"><i class="fas fa-trophy"></i></div>
+                <h2 class="text-3xl font-black">Vos Droits</h2>
+                <p class="text-sm font-bold opacity-90 mt-1" id="quiz-progress">Question 1/3</p>
+            </div>
+            <div class="p-6" id="quiz-content">
+                <div class="bg-surface p-6 rounded-3xl shadow-soft border border-gray-100 mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full z-0"></div>
+                    <h3 class="font-black text-gray-900 text-[19px] leading-tight relative z-10 mb-6" id="quiz-question">Peut-on vous imposer des congés payés ?</h3>
+                    <div class="space-y-3 relative z-10" id="quiz-answers">
+                        <button onclick="answerQuiz(true)" class="w-full text-left p-4 rounded-2xl border-2 border-gray-100 font-bold text-gray-600 hover:border-totalBlue active:scale-[0.98] transition-all bg-white">Oui, sous certaines conditions</button>
+                        <button onclick="answerQuiz(false)" class="w-full text-left p-4 rounded-2xl border-2 border-gray-100 font-bold text-gray-600 hover:border-cgtRed active:scale-[0.98] transition-all bg-white">Non, c'est totalement illégal</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -590,6 +626,31 @@
         function openTool(id) { hapticFeedback(); document.getElementById(id).classList.add('show-modal'); }
         function closeTool(id) { document.getElementById(id).classList.remove('show-modal'); }
 
+        let storyTimeout;
+        function openStory(index) {
+            hapticFeedback();
+            const data = storiesData[index];
+            document.getElementById('story-img').src = data.img;
+            document.getElementById('story-title').textContent = data.title;
+            document.getElementById('story-desc').textContent = data.desc;
+            
+            const view = document.getElementById('view-story');
+            view.classList.add('show-modal');
+            
+            const bar = document.getElementById('story-bar');
+            bar.style.animation = 'none';
+            void bar.offsetWidth; // trigger reflow
+            bar.style.animation = 'storyProgress 5s linear forwards';
+            
+            clearTimeout(storyTimeout);
+            storyTimeout = setTimeout(closeStory, 5000);
+        }
+
+        function closeStory() {
+            clearTimeout(storyTimeout);
+            document.getElementById('view-story').classList.remove('show-modal');
+        }
+
         function selectSite(id) {
             hapticFeedback();
             currentSiteId = id;
@@ -683,6 +744,64 @@
         }
         function toggleSupport(btn) { hapticFeedback(); btn.innerHTML = '<i class="fas fa-check"></i> ACTION SOUTENUE'; btn.classList.add('bg-red-50', 'text-cgtRed'); }
         function submitDgi() { hapticFeedback(); document.getElementById('btn-submit-dgi').innerHTML='...'; setTimeout(()=>{ document.getElementById('dgi-form-view').classList.add('hidden'); document.getElementById('dgi-success-view').classList.remove('hidden'); }, 1500); }
+
+        // LOGIQUE QUIZ
+        const quizData = [
+            { q: "L'employeur peut-il modifier vos dates de congés payés 2 jours avant votre départ ?", a: [{t: "Oui, s'il indemnise la perte", c: false}, {t: "Non, le délai légal est d'un mois", c: true}], exp: "Sauf circonstances exceptionnelles, l'employeur ne peut pas modifier l'ordre et les dates de départ moins d'un mois avant la date prévue." },
+            { q: "Êtes-vous obligé de répondre à vos mails professionnels le week-end ?", a: [{t: "Non, c'est le droit à la déconnexion", c: true}, {t: "Oui, si je suis cadre au forfait", c: false}], exp: "Le droit à la déconnexion est absolu, même pour les cadres au forfait jours, afin de garantir le respect des temps de repos." },
+            { q: "Une sanction pécuniaire (retenue sur salaire) en cas d'erreur de caisse est-elle légale ?", a: [{t: "Oui, c'est souvent dans le contrat", c: false}, {t: "Non, c'est strictement interdit", c: true}], exp: "Le code du travail interdit formellement toute amende ou sanction pécuniaire (Article L1331-2)." }
+        ];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        function openQuiz() {
+            currentQuizIndex = 0; quizScore = 0;
+            openTool('modal-quiz');
+            renderQuiz();
+        }
+
+        function renderQuiz() {
+            document.getElementById('quiz-progress').textContent = `Question ${currentQuizIndex + 1}/${quizData.length}`;
+            const q = quizData[currentQuizIndex];
+            document.getElementById('quiz-question').textContent = q.q;
+            const container = document.getElementById('quiz-answers');
+            container.innerHTML = q.a.map((ans, idx) => `
+                <button onclick="answerQuiz(${ans.c})" class="w-full text-left p-4 rounded-2xl border-2 border-gray-100 font-bold text-gray-700 hover:border-orange-400 hover:bg-orange-50 active:scale-[0.98] transition-all bg-white relative overflow-hidden group">
+                    <span class="relative z-10">${ans.t}</span>
+                    <div class="absolute inset-0 bg-orange-100 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-0"></div>
+                </button>
+            `).join('');
+        }
+
+        function answerQuiz(isCorrect) {
+            hapticFeedback();
+            if(isCorrect) quizScore++;
+            const container = document.getElementById('quiz-answers');
+            container.innerHTML = `
+                <div class="${isCorrect ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'} p-5 rounded-2xl border-2 font-bold mb-4 animate-slide-up">
+                    <p class="text-lg font-black mb-1">${isCorrect ? 'Bonne réponse ! 🎉' : 'Oups... ❌'}</p>
+                    <p class="text-sm font-medium leading-relaxed">${quizData[currentQuizIndex].exp}</p>
+                </div>
+                <button onclick="nextQuiz()" class="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-sm active:scale-[0.98]">CONTINUER</button>
+            `;
+        }
+
+        function nextQuiz() {
+            hapticFeedback();
+            currentQuizIndex++;
+            if(currentQuizIndex < quizData.length) {
+                renderQuiz();
+            } else {
+                document.getElementById('quiz-content').innerHTML = `
+                    <div class="bg-surface p-8 rounded-3xl shadow-float border border-gray-100 text-center animate-fade-in">
+                        <div class="text-6xl mb-4">${quizScore === 3 ? '🏆' : (quizScore === 2 ? '👍' : '📚')}</div>
+                        <h3 class="font-black text-2xl text-gray-900 mb-2">Score : ${quizScore}/${quizData.length}</h3>
+                        <p class="text-gray-600 font-medium mb-6">Continuez de vous informer avec vos délégués CGT pour défendre vos droits au quotidien !</p>
+                        <button onclick="closeTool('modal-quiz')" class="w-full bg-orange-500 text-white py-4 rounded-xl font-black text-sm active:scale-[0.98] shadow-md">TERMINER</button>
+                    </div>
+                `;
+            }
+        }
 
         init();
     </script>

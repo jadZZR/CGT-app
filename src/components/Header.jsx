@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import logoImg from '../assets/logo.jpg';
 
 export default function Header() {
   const [greeting, setGreeting] = useState("Bonjour, Jad");
@@ -29,7 +30,7 @@ export default function Header() {
               transition={{ delay: 0.2, type: "spring" }}
               className="w-12 h-12 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center p-0.5 relative group"
             >
-              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-full" />
+              <img src={logoImg} alt="Logo" className="w-full h-full object-contain rounded-full" />
               <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
             </motion.div>
             <motion.div

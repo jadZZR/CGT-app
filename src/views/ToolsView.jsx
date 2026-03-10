@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wifi, Calculator, Bot, AlertTriangle } from 'lucide-react';
+import logoImg from '../assets/logo.jpg';
 import ChatbotModal from '../features/Chatbot';
 import SimulatorModal from '../features/SimulateurNAO';
 import DgiAlertModal from '../features/DgiAlert';
@@ -38,7 +39,7 @@ export default function ToolsView() {
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
             
             <div className="flex justify-between items-start relative z-10">
-              <img src="/logo.jpg" alt="Logo CGT" className="w-12 h-12 bg-white rounded-xl p-1.5 object-contain" />
+              <img src={logoImg} alt="Logo CGT" className="w-12 h-12 bg-white rounded-xl p-1.5 object-contain" />
               <Wifi className="text-gray-500 rotate-90" size={24} />
             </div>
             
